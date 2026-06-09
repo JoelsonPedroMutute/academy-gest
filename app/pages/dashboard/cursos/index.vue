@@ -113,8 +113,8 @@ const handleDeleteCurso = async (curso) => {
       </table>
     </div>
 
-    <Modal v-if="editingCurso" :is-open="isModalOpen" :title="`Editar Curso: ${editingCurso.nome}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateCurso" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Curso: ${editingCurso?.nome || ''}`" @close="closeModal">
+      <form v-if="editingCurso" @submit.prevent="handleUpdateCurso" class="form">
         <div class="form__group">
           <label for="edit-nome" class="form__label">Nome do Curso</label>
           <input id="edit-nome" v-model="editingCurso.nome" type="text" class="form__input" placeholder="Digite o nome do curso" required />

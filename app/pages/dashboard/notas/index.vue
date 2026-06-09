@@ -134,8 +134,8 @@ const handleDeleteNota = async (nota) => {
       </table>
     </div>
 
-    <Modal v-if="editingNota" :is-open="isModalOpen" :title="`Editar Nota: ${editingNota.aluno}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateNota" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Nota: ${editingNota?.aluno || ''}`" @close="closeModal">
+      <form v-if="editingNota" @submit.prevent="handleUpdateNota" class="form">
         <div class="form__row">
           <div class="form__group">
             <label for="edit-aluno" class="form__label">Aluno</label>

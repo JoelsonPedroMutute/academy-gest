@@ -1,105 +1,151 @@
 <script setup lang="ts">
 interface Props {
-  isOpen: boolean
-  title: string
+  isOpen: boolean;
+  title: string;
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  close: []
-}>()
-
-const closeModal = () => {
-  emit('close')
-}
+defineProps<Props>();
+const emit = defineEmits<{ close: [] }>();
 </script>
 
 <template>
-  <Transition name="modal">
-    <div v-if="isOpen" class="modal-overlay" @click.self="closeModal">
-      <div class="modal" @click.stop>
-        <div class="modal__header">
-          <h2 class="modal__title">{{ title }}</h2>
-          <button class="modal__close" @click="closeModal">
-            <i class="ti ti-x"></i>
-          </button>
-        </div>
-        <div class="modal__body">
-          <slot></slot>
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="isOpen" class="modal-overlay" @click.self="emit('close')">
+        <div class="modal" role="dialog" aria-modal="true">
+          <div class="modal__header">
+            <h2 class="modal__title">{{ title }}</h2>
+            <button
+              class="modal__close"
+              @click="emit('close')"
+              aria-label="Fechar"
+            >
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+          <div class="modal__body">
+            <slot />
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
 </template>
 
-<style lang="sass">
-@use '~/assets/sass/variables' as *
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 1000;
+}
 
-.modal-overlay
-  position: fixed
-  top: 0
-  left: 0
-  right: 0
-  bottom: 0
-  background: rgba(0, 0, 0, 0.5)
-  display: flex
-  align-items: center
-  justify-content: center
-  z-index: 99999
-  padding: $spacing-xl
+.modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
 
-.modal
-  background: $white
-  border-radius: $radius-lg
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25)
-  width: 100%
-  max-width: 600px
-  max-height: 90vh
-  overflow-y: auto
-  opacity: 1
-  transform: scale(1)
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
 
-  &__header
-    display: flex
-    align-items: center
-    justify-content: space-between
-    padding: $spacing-xl
-    border-bottom: 1px solid $gray-200
+.modal__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
 
-  &__title
-    font-size: 1.5rem
-    font-weight: 700
-    color: $gray-900
-    margin: 0
+.modal__close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 8px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
 
-  &__close
-    width: 40px
-    height: 40px
-    border: none
-    background: $gray-100
-    border-radius: $radius-md
-    color: $gray-600
-    font-size: 1.5rem
-    display: flex
-    align-items: center
-    justify-content: center
-    cursor: pointer
-    transition: background 0.15s, color 0.15s
+.modal__close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
 
-    &:hover
-      background: $gray-200
-      color: $gray-900
+.modal__close i {
+  font-size: 18px;
+  line-height: 1;
+}
 
-  &__body
-    padding: $spacing-xl
+.modal__body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
 
-.modal-enter-active,
-.modal-leave-active
-  transition: opacity 0.2s ease, transform 0.2s ease
+/* Transition */
+.modal-enter-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-leave-active {
+  transition: opacity 0.15s ease;
+}
 
 .modal-enter-from,
-.modal-leave-to
-  opacity: 0
-  .modal
-    transform: scale(0.9)
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .modal {
+  animation: modal-in 0.2s ease forwards;
+}
+
+.modal-leave-active .modal {
+  animation: modal-out 0.15s ease forwards;
+}
+
+@keyframes modal-in {
+  from {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modal-out {
+  from {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+}
 </style>

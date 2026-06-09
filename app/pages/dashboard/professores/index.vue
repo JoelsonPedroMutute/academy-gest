@@ -6,7 +6,7 @@ definePageMeta({
 const { $swal } = useNuxtApp()
 
 const professores = ref([
-  { id: 1, nome: "Maria Silva", email: "maria.silva@academia.edu", telefone: "(11) 98765-4321", disciplina: "OPP", status: "Ativo" },
+  { id: 1, nome: "Hernany Simão", email: "hernanysimao123@gmail.com", telefone: "930586957", disciplina: "OPP", status: "Ativo" },
   { id: 2, nome: "João Pereira", email: "joao.pereira@academia.edu", telefone: "(11) 91234-5678", disciplina: "Oratória", status: "Ativo" },
   { id: 3, nome: "Carlos Santos", email: "carlos.santos@academia.edu", telefone: "(11) 99876-5432", disciplina: "Matemática", status: "Ativo" },
 ])
@@ -121,8 +121,8 @@ const handleDeleteProfessor = async (professor) => {
       </table>
     </div>
 
-    <Modal v-if="editingProfessor" :is-open="isModalOpen" :title="`Editar Professor: ${editingProfessor.nome}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateProfessor" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Professor: ${editingProfessor?.nome || ''}`" @close="closeModal">
+      <form v-if="editingProfessor" @submit.prevent="handleUpdateProfessor" class="form">
         <div class="form__group">
           <label for="edit-nome" class="form__label">Nome completo</label>
           <input id="edit-nome" v-model="editingProfessor.nome" type="text" class="form__input" placeholder="Digite o nome completo" required />

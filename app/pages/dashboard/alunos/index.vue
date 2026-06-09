@@ -1,59 +1,93 @@
 <script setup>
 definePageMeta({
   layout: "default",
-})
+});
 
-const { $swal } = useNuxtApp()
+const { $swal } = useNuxtApp();
 
 const alunos = ref([
-  { id: 1, nome: "Ana Souza", email: "ana.souza@academia.edu", telefone: "(11) 98765-4321", curso: "Jornalismo", semestre: "3º Semestre", status: "Ativo" },
-  { id: 2, nome: "Pedro Costa", email: "pedro.costa@academia.edu", telefone: "(11) 91234-5678", curso: "Comunicação Social", semestre: "2º Semestre", status: "Ativo" },
-  { id: 3, nome: "Lucia Oliveira", email: "lucia.oliveira@academia.edu", telefone: "(11) 99876-5432", curso: "Técnico de Informática", semestre: "1º Semestre", status: "Ativo" },
-])
+  {
+    id: 1,
+    nome: "Ana Souza",
+    email: "ana.souza@academia.edu",
+    telefone: "(11) 98765-4321",
+    curso: "Jornalismo",
+    semestre: "3º Semestre",
+    status: "Ativo",
+  },
+  {
+    id: 2,
+    nome: "Pedro Costa",
+    email: "pedro.costa@academia.edu",
+    telefone: "(11) 91234-5678",
+    curso: "Comunicação Social",
+    semestre: "2º Semestre",
+    status: "Ativo",
+  },
+  {
+    id: 3,
+    nome: "Lucia Oliveira",
+    email: "lucia.oliveira@academia.edu",
+    telefone: "(11) 99876-5432",
+    curso: "Técnico de Informática",
+    semestre: "1º Semestre",
+    status: "Ativo",
+  },
+]);
 
-const isModalOpen = ref(false)
-const editingAluno = ref(null)
+const isModalOpen = ref(false);
+const editingAluno = ref(null);
+
+const modalTitle = computed(() => {
+  if (!editingAluno.value) return "";
+  return `Editar Aluno: ${editingAluno.value.nome}`;
+});
 
 const getInitials = (nome) => {
-  return nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
-}
+  return nome
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+};
 
 const openEditModal = (aluno) => {
-  editingAluno.value = { ...aluno }
-  isModalOpen.value = true
-}
+  editingAluno.value = { ...aluno };
+  isModalOpen.value = true;
+};
 
 const closeModal = () => {
-  isModalOpen.value = false
-  editingAluno.value = null
-}
+  isModalOpen.value = false;
+  editingAluno.value = null;
+};
 
 const handleUpdateAluno = () => {
-  const index = alunos.value.findIndex(a => a.id === editingAluno.value.id)
+  const index = alunos.value.findIndex((a) => a.id === editingAluno.value.id);
   if (index !== -1) {
-    alunos.value[index] = { ...editingAluno.value }
+    alunos.value[index] = { ...editingAluno.value };
   }
-  $swal.toast.fire({ icon: 'success', title: 'Aluno atualizado com sucesso!' })
-  closeModal()
-}
+  $swal.toast.fire({ icon: "success", title: "Aluno atualizado com sucesso!" });
+  closeModal();
+};
 
 const handleDeleteAluno = async (aluno) => {
   const { isConfirmed } = await $swal.modal.fire({
-    title: 'Tem certeza?',
+    title: "Tem certeza?",
     text: `Você está prestes a excluir o aluno "${aluno.nome}". Esta ação não pode ser desfeita!`,
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Sim, excluir!',
-    cancelButtonText: 'Cancelar'
-  })
-  
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Sim, excluir!",
+    cancelButtonText: "Cancelar",
+  });
+
   if (isConfirmed) {
-    alunos.value = alunos.value.filter(a => a.id !== aluno.id)
-    $swal.toast.fire({ icon: 'success', title: 'Aluno excluído com sucesso!' })
+    alunos.value = alunos.value.filter((a) => a.id !== aluno.id);
+    $swal.toast.fire({ icon: "success", title: "Aluno excluído com sucesso!" });
   }
-}
+};
 </script>
 
 <template>
@@ -70,7 +104,11 @@ const handleDeleteAluno = async (aluno) => {
     </div>
 
     <div class="filters">
-      <input type="text" class="filters__search" placeholder="Buscar aluno por nome..." />
+      <input
+        type="text"
+        class="filters__search"
+        placeholder="Buscar aluno por nome..."
+      />
       <select class="filters__select">
         <option>Todos os Cursos</option>
         <option>Jornalismo</option>
@@ -108,7 +146,9 @@ const handleDeleteAluno = async (aluno) => {
           <tr v-for="aluno in alunos" :key="aluno.id">
             <td>
               <div class="cell-name">
-                <div class="cell-name__avatar">{{ getInitials(aluno.nome) }}</div>
+                <div class="cell-name__avatar">
+                  {{ getInitials(aluno.nome) }}
+                </div>
                 <span>{{ aluno.nome }}</span>
               </div>
             </td>
@@ -117,12 +157,24 @@ const handleDeleteAluno = async (aluno) => {
             <td>{{ aluno.curso }}</td>
             <td>{{ aluno.semestre }}</td>
             <td>
-              <span class="status-tag status-tag--ativa">{{ aluno.status }}</span>
+              <span class="status-tag status-tag--ativa">{{
+                aluno.status
+              }}</span>
             </td>
             <td>
               <div class="actions">
-                <button class="action-btn action-btn--edit" @click="openEditModal(aluno)">Editar</button>
-                <button class="btn btn--primary btn--danger" @click="handleDeleteAluno(aluno)">Excluir</button>
+                <button
+                  class="action-btn action-btn--edit"
+                  @click="openEditModal(aluno)"
+                >
+                  Editar
+                </button>
+                <button
+                  class="btn btn--primary btn--danger"
+                  @click="handleDeleteAluno(aluno)"
+                >
+                  Excluir
+                </button>
               </div>
             </td>
           </tr>
@@ -130,28 +182,59 @@ const handleDeleteAluno = async (aluno) => {
       </table>
     </div>
 
-    <Modal v-if="editingAluno" :is-open="isModalOpen" :title="`Editar Aluno: ${editingAluno.nome}`" @close="closeModal">
+    <Modal
+      v-if="editingAluno"
+      :is-open="isModalOpen"
+      :title="modalTitle"
+      @close="closeModal"
+    >
       <form @submit.prevent="handleUpdateAluno" class="form">
         <div class="form__group">
           <label for="edit-nome" class="form__label">Nome completo</label>
-          <input id="edit-nome" v-model="editingAluno.nome" type="text" class="form__input" placeholder="Digite o nome completo" required />
+          <input
+            id="edit-nome"
+            v-model="editingAluno.nome"
+            type="text"
+            class="form__input"
+            placeholder="Digite o nome completo"
+            required
+          />
         </div>
 
         <div class="form__row">
           <div class="form__group">
             <label for="edit-email" class="form__label">E-mail</label>
-            <input id="edit-email" v-model="editingAluno.email" type="email" class="form__input" placeholder="Digite o e-mail" required />
+            <input
+              id="edit-email"
+              v-model="editingAluno.email"
+              type="email"
+              class="form__input"
+              placeholder="Digite o e-mail"
+              required
+            />
           </div>
           <div class="form__group">
             <label for="edit-telefone" class="form__label">Telefone</label>
-            <input id="edit-telefone" v-model="editingAluno.telefone" type="text" class="form__input" placeholder="(00) 00000-0000" required />
+            <input
+              id="edit-telefone"
+              v-model="editingAluno.telefone"
+              type="text"
+              class="form__input"
+              placeholder="(00) 00000-0000"
+              required
+            />
           </div>
         </div>
 
         <div class="form__row">
           <div class="form__group">
             <label for="edit-curso" class="form__label">Curso</label>
-            <select id="edit-curso" v-model="editingAluno.curso" class="form__select" required>
+            <select
+              id="edit-curso"
+              v-model="editingAluno.curso"
+              class="form__select"
+              required
+            >
               <option value="">Selecione um curso</option>
               <option>Jornalismo</option>
               <option>Comunicação Social</option>
@@ -160,7 +243,12 @@ const handleDeleteAluno = async (aluno) => {
           </div>
           <div class="form__group">
             <label for="edit-semestre" class="form__label">Semestre</label>
-            <select id="edit-semestre" v-model="editingAluno.semestre" class="form__select" required>
+            <select
+              id="edit-semestre"
+              v-model="editingAluno.semestre"
+              class="form__select"
+              required
+            >
               <option value="">Selecione um semestre</option>
               <option>1º Semestre</option>
               <option>2º Semestre</option>
@@ -172,15 +260,28 @@ const handleDeleteAluno = async (aluno) => {
 
         <div class="form__group">
           <label for="edit-status" class="form__label">Status</label>
-          <select id="edit-status" v-model="editingAluno.status" class="form__select" required>
+          <select
+            id="edit-status"
+            v-model="editingAluno.status"
+            class="form__select"
+            required
+          >
             <option>Ativo</option>
             <option>Inativo</option>
           </select>
         </div>
 
         <div class="form__actions">
-          <button type="button" @click="closeModal" class="form__button form__button--secondary">Cancelar</button>
-          <button type="submit" class="form__button form__button--primary">Salvar Alterações</button>
+          <button
+            type="button"
+            @click="closeModal"
+            class="form__button form__button--secondary"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="form__button form__button--primary">
+            Salvar Alterações
+          </button>
         </div>
       </form>
     </Modal>

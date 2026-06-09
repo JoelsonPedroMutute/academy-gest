@@ -128,8 +128,8 @@ const handleDeleteTurma = async (turma) => {
       </table>
     </div>
 
-    <Modal v-if="editingTurma" :is-open="isModalOpen" :title="`Editar Turma: ${editingTurma.nome}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateTurma" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Turma: ${editingTurma?.nome || ''}`" @close="closeModal">
+      <form v-if="editingTurma" @submit.prevent="handleUpdateTurma" class="form">
         <div class="form__group">
           <label for="edit-nome" class="form__label">Nome da Turma</label>
           <input id="edit-nome" v-model="editingTurma.nome" type="text" class="form__input" placeholder="Digite o nome da turma" required />

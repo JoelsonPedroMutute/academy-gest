@@ -109,8 +109,8 @@ const handleDeleteDisciplina = async (disciplina) => {
       </table>
     </div>
 
-    <Modal v-if="editingDisciplina" :is-open="isModalOpen" :title="`Editar Disciplina: ${editingDisciplina.nome}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateDisciplina" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Disciplina: ${editingDisciplina?.nome || ''}`" @close="closeModal">
+      <form v-if="editingDisciplina" @submit.prevent="handleUpdateDisciplina" class="form">
         <div class="form__row">
           <div class="form__group">
             <label for="edit-nome" class="form__label">Nome da Disciplina</label>

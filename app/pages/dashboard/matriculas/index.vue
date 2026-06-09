@@ -125,8 +125,8 @@ const handleDeleteMatricula = async (matricula) => {
       </table>
     </div>
 
-    <Modal v-if="editingMatricula" :is-open="isModalOpen" :title="`Editar Matrícula: ${editingMatricula.aluno}`" @close="closeModal">
-      <form @submit.prevent="handleUpdateMatricula" class="form">
+    <Modal :is-open="isModalOpen" :title="`Editar Matrícula: ${editingMatricula?.aluno || ''}`" @close="closeModal">
+      <form v-if="editingMatricula" @submit.prevent="handleUpdateMatricula" class="form">
         <div class="form__group">
           <label for="edit-aluno" class="form__label">Aluno</label>
           <input id="edit-aluno" v-model="editingMatricula.aluno" type="text" class="form__input" placeholder="Digite o nome do aluno" required />
