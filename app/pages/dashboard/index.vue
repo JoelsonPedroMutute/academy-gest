@@ -66,7 +66,8 @@ const stats = [
 </template>
 
 <style lang="sass">
-$red: #c0392b
+$red: #dc2626
+$red-dark: #b91c1c
 
 .dash
     display: flex
@@ -79,20 +80,20 @@ $red: #c0392b
         justify-content: space-between
 
     &__title
-        font-size: 1.75rem
+        font-size: 2rem
         font-weight: 800
-        color: #111827
-        margin: 0 0 0.25rem
+        color: #0f172a
+        margin: 0 0 0.5rem
 
     &__subtitle
-        font-size: 0.9rem
-        color: #6b7280
+        font-size: 1.125rem
+        color: #64748b
         margin: 0
 
     &__stats
         display: grid
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
-        gap: 1rem
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))
+        gap: 1.25rem
 
     &__grid
         display: grid
@@ -101,77 +102,85 @@ $red: #c0392b
 
 .stat-card
     background: #fff
-    border-radius: 12px
-    padding: 1.25rem 1.5rem
+    border-radius: 16px
+    padding: 1.5rem
     display: flex
     align-items: center
     gap: 1rem
-    border: 1px solid #ebebeb
+    border: 1px solid #e2e8f0
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)
+    transition: transform 0.2s, box-shadow 0.2s
+
+    &:hover
+        transform: translateY(-2px)
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)
 
     &__icon
-        width: 48px
-        height: 48px
-        border-radius: 12px
+        width: 56px
+        height: 56px
+        border-radius: 14px
         display: flex
         align-items: center
         justify-content: center
         flex-shrink: 0
 
         i
-            font-size: 22px
+            font-size: 26px
 
     &__info
         display: flex
         flex-direction: column
-        gap: 2px
+        gap: 4px
 
     &__value
-        font-size: 1.5rem
+        font-size: 2rem
         font-weight: 800
-        color: #111827
+        color: #0f172a
         line-height: 1
 
     &__label
-        font-size: 0.85rem
-        color: #6b7280
+        font-size: 0.9375rem
+        color: #64748b
         font-weight: 500
 
 .dash-widget
     background: #fff
-    border-radius: 12px
-    padding: 1.5rem
-    border: 1px solid #ebebeb
+    border-radius: 16px
+    padding: 1.75rem
+    border: 1px solid #e2e8f0
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)
 
     &__title
-        font-size: 0.85rem
-        font-weight: 600
-        color: #6b7280
+        font-size: 0.875rem
+        font-weight: 700
+        color: #64748b
         text-transform: uppercase
-        letter-spacing: 0.06em
-        margin: 0 0 1rem
+        letter-spacing: 0.08em
+        margin: 0 0 1.25rem
 
     &__links
         display: flex
         flex-wrap: wrap
-        gap: 0.625rem
+        gap: 0.75rem
 
 .quick-link
     display: inline-flex
     align-items: center
-    gap: 0.5rem
-    padding: 0.5rem 0.875rem
-    background: #f3f4f6
-    border-radius: 8px
-    font-size: 0.875rem
-    font-weight: 500
-    color: #374151
+    gap: 0.625rem
+    padding: 0.75rem 1rem
+    background: #f8fafc
+    border-radius: 10px
+    font-size: 0.9375rem
+    font-weight: 600
+    color: #1e293b
     text-decoration: none
-    transition: background 0.15s, color 0.15s
+    transition: background 0.15s, color 0.15s, transform 0.15s
 
     i
-        font-size: 16px
+        font-size: 18px
 
     &:hover
         background: $red
         color: #fff
+        transform: translateY(-1px)
 </style>

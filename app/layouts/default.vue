@@ -115,16 +115,16 @@ const iniciaisNome = computed(() => {
 
 <style lang="sass">
 // ─── Variáveis ───────────────────────────────────────────
-$red: #c0392b
-$red-dark: #a93226
+$red: #dc2626
+$red-dark: #b91c1c
 $sidebar-w: 280px
-$topbar-h: 64px
+$topbar-h: 68px
 
 // ─── Layout base ─────────────────────────────────────────
 .app-layout
     display: flex
     min-height: 100vh
-    background: #f4f4f6
+    background: #f8fafc
 
 .app-main
     flex: 1
@@ -134,7 +134,7 @@ $topbar-h: 64px
 
 .app-content
     flex: 1
-    padding: 2rem 2.5rem
+    padding: 2.5rem
     overflow-y: auto
 
 // ─── Sidebar ─────────────────────────────────────────────
@@ -142,7 +142,7 @@ $topbar-h: 64px
     width: $sidebar-w
     min-height: 100vh
     background: #fff
-    border-right: 1px solid #ebebeb
+    border-right: 1px solid #e2e8f0
     display: flex
     flex-direction: column
     flex-shrink: 0
@@ -150,15 +150,15 @@ $topbar-h: 64px
     &__brand
         display: flex
         align-items: center
-        gap: 0.625rem
-        padding: 1rem 1.25rem
-        border-bottom: 1px solid #ebebeb
+        gap: 0.75rem
+        padding: 1.25rem 1.5rem
+        border-bottom: 1px solid #e2e8f0
         min-height: $topbar-h
 
     &__brand-icon
-        width: 32px
-        height: 32px
-        border-radius: 8px
+        width: 36px
+        height: 36px
+        border-radius: 10px
         background: $red
         color: #fff
         display: flex
@@ -167,38 +167,38 @@ $topbar-h: 64px
         flex-shrink: 0
 
         i
-            font-size: 16px
+            font-size: 18px
 
     &__brand-name
-        font-size: 1rem
-        font-weight: 700
-        color: #111827
+        font-size: 1.0625rem
+        font-weight: 800
+        color: #0f172a
         flex: 1
 
     &__brand-chevron
         background: none
         border: none
         cursor: pointer
-        color: #9ca3af
+        color: #94a3b8
         display: flex
         padding: 0
 
         i
-            font-size: 16px
+            font-size: 18px
 
     &__nav
         flex: 1
-        padding: 1.25rem 0.75rem
+        padding: 1.5rem 1rem
         overflow-y: auto
 
     &__nav-label
-        font-size: 0.7rem
-        font-weight: 600
-        color: #9ca3af
+        font-size: 0.75rem
+        font-weight: 700
+        color: #94a3b8
         text-transform: uppercase
-        letter-spacing: 0.07em
-        padding: 0 0.625rem
-        margin: 0 0 0.625rem
+        letter-spacing: 0.08em
+        padding: 0 0.75rem
+        margin: 0 0 0.75rem
 
     &__nav-list
         list-style: none
@@ -206,115 +206,119 @@ $topbar-h: 64px
         padding: 0
         display: flex
         flex-direction: column
-        gap: 2px
+        gap: 4px
 
     &__nav-item
         display: flex
         align-items: center
-        gap: 0.75rem
-        padding: 0.625rem 0.75rem
-        border-radius: 8px
-        font-size: 0.9rem
-        font-weight: 500
-        color: #4b5563
+        gap: 0.875rem
+        padding: 0.875rem 1rem
+        border-radius: 10px
+        font-size: 0.9375rem
+        font-weight: 600
+        color: #475569
         text-decoration: none
-        transition: background 0.15s, color 0.15s
+        transition: background 0.15s, color 0.15s, transform 0.1s
 
         i
-            font-size: 18px
+            font-size: 20px
             flex-shrink: 0
 
         &:hover
-            background: #f3f4f6
-            color: #111827
+            background: #f1f5f9
+            color: #0f172a
 
         &--active
             background: $red
             color: #fff
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -2px rgba(220, 38, 38, 0.1)
 
             &:hover
                 background: $red-dark
                 color: #fff
 
     &__footer
-        padding: 0.75rem
-        border-top: 1px solid #ebebeb
+        padding: 1rem
+        border-top: 1px solid #e2e8f0
 
     &__logout
         display: flex
         align-items: center
-        gap: 0.75rem
+        gap: 0.875rem
         width: 100%
-        padding: 0.7rem 0.75rem
-        border-radius: 8px
+        padding: 0.875rem 1rem
+        border-radius: 10px
         background: $red
         color: #fff
         border: none
         cursor: pointer
-        font-size: 0.9rem
-        font-weight: 600
-        transition: background 0.15s
+        font-size: 0.9375rem
+        font-weight: 700
+        transition: background 0.15s, transform 0.1s, box-shadow 0.15s
+        box-shadow: 0 1px 3px 0 rgba(220, 38, 38, 0.2)
 
         i
-            font-size: 18px
+            font-size: 20px
 
         &:hover
             background: $red-dark
+            transform: translateY(-1px)
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3)
 
 // ─── Topbar ──────────────────────────────────────────────
 .topbar
     height: $topbar-h
     background: #fff
-    border-bottom: 1px solid #ebebeb
+    border-bottom: 1px solid #e2e8f0
     display: flex
     align-items: center
     justify-content: space-between
-    padding: 0 2rem
+    padding: 0 2.5rem
     flex-shrink: 0
 
     &__left,
     &__right
         display: flex
         align-items: center
-        gap: 0.75rem
+        gap: 1rem
 
     &__icon-btn
-        width: 36px
-        height: 36px
-        border-radius: 8px
+        width: 40px
+        height: 40px
+        border-radius: 10px
         background: none
         border: none
         cursor: pointer
-        color: #6b7280
+        color: #64748b
         display: flex
         align-items: center
         justify-content: center
         transition: background 0.15s, color 0.15s
 
         i
-            font-size: 20px
+            font-size: 22px
 
         &:hover
-            background: #f3f4f6
-            color: #111827
+            background: #f1f5f9
+            color: #0f172a
 
     &__avatar
-        width: 36px
-        height: 36px
+        width: 40px
+        height: 40px
         border-radius: 50%
         background: $red
         color: #fff
         display: flex
         align-items: center
         justify-content: center
-        font-size: 0.8rem
-        font-weight: 700
+        font-size: 0.875rem
+        font-weight: 800
         flex-shrink: 0
 
     &__user
         display: flex
         align-items: center
-        gap: 0.625rem
+        gap: 0.75rem
 
     &__user-info
         display: flex
@@ -322,13 +326,13 @@ $topbar-h: 64px
         line-height: 1.3
 
     &__user-name
-        font-size: 0.85rem
-        color: #111827
+        font-size: 0.9375rem
+        color: #0f172a
 
         strong
-            font-weight: 700
+            font-weight: 800
 
     &__user-role
-        font-size: 0.775rem
-        color: #9ca3af
+        font-size: 0.8125rem
+        color: #94a3b8
 </style>
