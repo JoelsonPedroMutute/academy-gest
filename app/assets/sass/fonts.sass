@@ -1,0 +1,43 @@
+@use './variables' as *
+
+.font-thin
+    font-family: $primary-theme-font !important
+    font-weight: 100
+
+.font-extralight
+    font-family: $primary-theme-font !important
+    font-weight: 200
+
+.font-light
+    font-family: $primary-theme-font !important
+    font-weight: 300
+
+.font-regular
+    font-family: $primary-theme-font !important
+    font-weight: 400
+
+.font-medium
+    font-family: $primary-theme-font !important
+    font-weight: 500
+
+.font-semibold
+    font-family: $primary-theme-font !important
+    font-weight: 600
+
+.font-bold
+    font-family: $primary-theme-font !important
+    font-weight: 700
+
+.font-extrabold
+    font-family: $primary-theme-font !important
+    font-weight: 800
+
+.font-black
+    font-family: $primary-theme-font !important
+    font-weight: 900
+
+h1, h2, h3, h4, h5, h6, span, p, input, button,a,label, small, textarea, strong
+    @extend .font-regular
+
+input::placeholder
+    font-family: $primary-theme-font !important
