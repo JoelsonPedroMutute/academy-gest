@@ -6,88 +6,82 @@ definePageMeta({
 const { $swal } = useNuxtApp()
 
 const perfil = ref({
-  nome: "Administrador",
-  email: "admin@academia.edu",
-  telefone: "(11) 98765-4321",
-  cargo: "Coordenador"
+  nome: 'Administrador',
+  email: 'admin@academia.edu',
+  telefone: '(11) 98765-4321',
+  cargo: 'Gestor Acadêmico',
+  dataCadastro: '01/01/2024'
 })
 
-const isEditing = ref(false)
 const editForm = ref({ ...perfil.value })
 
-const startEdit = () => {
-  editForm.value = { ...perfil.value }
-  isEditing.value = true
-}
-
-const cancelEdit = () => {
-  isEditing.value = false
-  editForm.value = { ...perfil.value }
+const getInitials = (nome) => {
+  return nome.split(' ').map(n => n[0]).slice(0, 1).join('').toUpperCase()
 }
 
 const saveEdit = () => {
   perfil.value = { ...editForm.value }
-  isEditing.value = false
   $swal.toast.fire({ icon: 'success', title: 'Perfil atualizado com sucesso!' })
 }
 </script>
 
 <template>
-  <div class="perfil">
-    <div class="perfil__card">
-      <div class="perfil__avatar">
-        <i class="ti ti-user-circle"></i>
+  <div class="perfil-page">
+    <div class="perfil-page__header">
+      <h1 class="perfil-page__title">Meu Perfil</h1>
+      <p class="perfil-page__subtitle">Gerencie suas informações pessoais</p>
+    </div>
+
+    <div class="perfil-card">
+      <div class="perfil-card__header">
+        <div class="perfil-card__avatar">
+          {{ getInitials(perfil.nome) }}
+        </div>
+        <div class="perfil-card__info">
+          <h2 class="perfil-card__name">{{ perfil.nome }}</h2>
+          <p class="perfil-card__role">{{ perfil.cargo }}</p>
+        </div>
       </div>
-      
-      <div v-if="!isEditing">
-        <h1 class="perfil__nome">{{ perfil.nome }}</h1>
-        <p class="perfil__cargo">{{ perfil.cargo }}</p>
-        
-        <div class="perfil__info">
-          <div class="perfil__info-item">
-            <i class="ti ti-mail"></i>
-            <span>{{ perfil.email }}</span>
+
+      <form @submit.prevent="saveEdit" class="perfil-form">
+        <div class="perfil-form__row">
+          <div class="perfil-form__group">
+            <label class="perfil-form__label">Nome completo</label>
+            <input v-model="editForm.nome" type="text" class="perfil-form__input" required />
           </div>
-          <div class="perfil__info-item">
-            <i class="ti ti-phone"></i>
-            <span>{{ perfil.telefone }}</span>
+          <div class="perfil-form__group">
+            <label class="perfil-form__label">Email</label>
+            <input v-model="editForm.email" type="email" class="perfil-form__input" required />
           </div>
         </div>
-        
-        <button class="perfil__btn-editar" @click="startEdit">
-          <i class="ti ti-edit"></i>
-          Editar Perfil
-        </button>
-      </div>
-      
-      <div v-else>
-        <form @submit.prevent="saveEdit" class="form">
-          <div class="form__group">
-            <label for="edit-nome" class="form__label">Nome</label>
-            <input id="edit-nome" v-model="editForm.nome" type="text" class="form__input" placeholder="Digite o nome" required />
+
+        <div class="perfil-form__row">
+          <div class="perfil-form__group">
+            <label class="perfil-form__label">Telefone</label>
+            <input v-model="editForm.telefone" type="text" class="perfil-form__input" required />
           </div>
-          
-          <div class="form__group">
-            <label for="edit-email" class="form__label">E-mail</label>
-            <input id="edit-email" v-model="editForm.email" type="email" class="form__input" placeholder="Digite o e-mail" required />
+          <div class="perfil-form__group">
+            <label class="perfil-form__label">Cargo</label>
+            <input v-model="editForm.cargo" type="text" class="perfil-form__input perfil-form__input--disabled" disabled />
           </div>
-          
-          <div class="form__group">
-            <label for="edit-telefone" class="form__label">Telefone</label>
-            <input id="edit-telefone" v-model="editForm.telefone" type="text" class="form__input" placeholder="(00) 00000-0000" required />
-          </div>
-          
-          <div class="form__group">
-            <label for="edit-cargo" class="form__label">Cargo</label>
-            <input id="edit-cargo" v-model="editForm.cargo" type="text" class="form__input" placeholder="Digite o cargo" required />
-          </div>
-          
-          <div class="form__actions">
-            <button type="button" @click="cancelEdit" class="form__button form__button--secondary">Cancelar</button>
-            <button type="submit" class="form__button form__button--primary">Salvar</button>
-          </div>
-        </form>
-      </div>
+        </div>
+
+        <div class="perfil-form__group perfil-form__group--full">
+          <label class="perfil-form__label">Data de cadastro</label>
+          <input v-model="editForm.dataCadastro" type="text" class="perfil-form__input perfil-form__input--disabled" disabled />
+        </div>
+
+        <div class="perfil-form__actions">
+          <button type="submit" class="perfil-form__btn perfil-form__btn--primary">
+            <i class="ti ti-device-floppy"></i>
+            Salvar alterações
+          </button>
+          <button type="button" class="perfil-form__btn perfil-form__btn--secondary">
+            <i class="ti ti-lock"></i>
+            Alterar senha
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -95,86 +89,135 @@ const saveEdit = () => {
 <style lang="sass">
 @use '~/assets/sass/variables' as *
 
-.perfil
-  display: flex
-  justify-content: center
-  padding: $spacing-xl
+.perfil-page
+  padding: $spacing-2xl
 
-  &__card
-    background: $white
-    border-radius: $radius-lg
-    border: 1px solid $gray-200
-    box-shadow: $shadow-sm
-    padding: $spacing-3xl
-    max-width: 500px
-    width: 100%
-    text-align: center
+  &__header
+    margin-bottom: $spacing-2xl
+
+  &__title
+    font-size: 2rem
+    font-weight: 800
+    color: $gray-900
+    margin: 0 0 $spacing-sm
+
+  &__subtitle
+    font-size: 1rem
+    color: $gray-500
+    margin: 0
+
+.perfil-card
+  background: $white
+  border-radius: $radius-xl
+  border: 1px solid $gray-200
+  box-shadow: $shadow-sm
+  padding: $spacing-3xl
+
+  &__header
+    display: flex
+    align-items: center
+    gap: $spacing-xl
+    padding-bottom: $spacing-xl
+    border-bottom: 1px solid $gray-200
+    margin-bottom: $spacing-2xl
 
   &__avatar
-    width: 120px
-    height: 120px
-    margin: 0 auto $spacing-xl
-    background: linear-gradient(135deg, $red, $red-dark)
+    width: 100px
+    height: 100px
     border-radius: 50%
+    background: linear-gradient(135deg, $red, $red-dark)
     display: flex
     align-items: center
     justify-content: center
+    color: $white
+    font-size: 2.5rem
+    font-weight: 800
 
-    i
-      font-size: 4rem
-      color: $white
-
-  &__nome
-    font-size: 2rem
+  &__name
+    font-size: 1.5rem
     font-weight: 800
     color: $gray-900
     margin: 0 0 $spacing-xs
 
-  &__cargo
-    font-size: 1.125rem
+  &__role
+    font-size: 1rem
     color: $gray-500
-    margin: 0 0 $spacing-2xl
+    margin: 0
 
-  &__info
-    margin-bottom: $spacing-2xl
-    padding: $spacing-xl 0
-    border-top: 1px solid $gray-200
-    border-bottom: 1px solid $gray-200
+.perfil-form
+  &__row
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: $spacing-xl
+    margin-bottom: $spacing-xl
+
+  &__group
     display: flex
     flex-direction: column
-    gap: $spacing-md
+    gap: $spacing-sm
 
-  &__info-item
-    display: flex
-    align-items: center
-    gap: $spacing-md
-    justify-content: center
+    &--full
+      grid-column: 1 / -1
+
+  &__label
+    font-size: 0.875rem
+    font-weight: 600
     color: $gray-700
 
-    i
-      color: $red
-      font-size: 1.25rem
+  &__input
+    width: 100%
+    padding: $spacing-md $spacing-lg
+    border: 1px solid $gray-200
+    border-radius: $radius-md
+    font-size: 1rem
+    color: $gray-900
+    background: $gray-50
+    transition: border-color 0.15s, background 0.15s
 
-  &__btn-editar
-    display: inline-flex
+    &:focus
+      outline: none
+      border-color: $red
+      background: $white
+
+    &--disabled
+      background: $gray-100
+      color: $gray-500
+      cursor: not-allowed
+
+  &__actions
+    display: flex
+    gap: $spacing-md
+    margin-top: $spacing-2xl
+
+  &__btn
+    display: flex
     align-items: center
     gap: $spacing-sm
-    padding: $spacing-lg $spacing-2xl
-    background: $red
-    color: $white
+    padding: $spacing-md $spacing-xl
     border: none
     border-radius: $radius-md
     font-size: 1rem
     font-weight: 700
     cursor: pointer
     transition: background 0.15s, transform 0.1s, box-shadow 0.15s
-    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2)
 
     i
       font-size: 1.25rem
 
-    &:hover
-      background: $red-dark
-      transform: translateY(-1px)
-      box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3)
+    &--primary
+      background: $red
+      color: $white
+      box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2)
+
+      &:hover
+        background: $red-dark
+        transform: translateY(-1px)
+        box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3)
+
+    &--secondary
+      background: $gray-100
+      color: $gray-700
+
+      &:hover
+        background: $gray-200
 </style>

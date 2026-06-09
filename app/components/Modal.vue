@@ -45,7 +45,7 @@ const closeModal = () => {
   display: flex
   align-items: center
   justify-content: center
-  z-index: 9999
+  z-index: 99999
   padding: $spacing-xl
 
 .modal
@@ -76,7 +76,7 @@ const closeModal = () => {
     width: 40px
     height: 40px
     border: none
-    background: $gray-50
+    background: $gray-100
     border-radius: $radius-md
     color: $gray-600
     font-size: 1.5rem
