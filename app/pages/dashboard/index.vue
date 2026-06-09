@@ -3,61 +3,130 @@ definePageMeta({
   layout: "default",
 });
 
-const stats = [
-  { label: "Cursos", value: 12, icon: "ti-books", color: "#6366f1" },
-  { label: "Disciplinas", value: 48, icon: "ti-book", color: "#0ea5e9" },
-  { label: "Professores", value: 34, icon: "ti-users", color: "#10b981" },
-  { label: "Alunos", value: 1240, icon: "ti-school", color: "#f59e0b" },
-];
+const estatisticas = ref([
+  {
+    icon: "ti ti-users",
+    label: "Total de Alunos",
+    valor: "1,248",
+    cor: "blue"
+  },
+  {
+    icon: "ti ti-book",
+    label: "Total de Cursos",
+    valor: "42",
+    cor: "purple"
+  },
+  {
+    icon: "ti ti-users-group",
+    label: "Total de Turmas",
+    valor: "28",
+    cor: "green"
+  },
+  {
+    icon: "ti ti-school",
+    label: "Total de Professores",
+    valor: "56",
+    cor: "red"
+  }
+]);
+
+const atividadesRecentes = ref([
+  {
+    icon: "ti ti-user-plus",
+    texto: "Novo aluno matriculado: Maria Silva",
+    horario: "Há 2 minutos",
+    cor: "green"
+  },
+  {
+    icon: "ti ti-check",
+    texto: "Notas de OPP lançadas para Turma A",
+    horario: "Há 1 hora",
+    cor: "blue"
+  },
+  {
+    icon: "ti ti-edit",
+    texto: "Curso de Comunicação Social atualizado",
+    horario: "Há 3 horas",
+    cor: "purple"
+  },
+  {
+    icon: "ti ti-trash",
+    texto: "Professor João removido do sistema",
+    horario: "Há 5 horas",
+    cor: "red"
+  }
+]);
 </script>
 
 <template>
-  <div class="dash">
-    <div class="dash__head">
-      <div>
-        <h1 class="dash__title">Dashboard</h1>
-        <p class="dash__subtitle">Bem-vindo ao painel de administração</p>
-      </div>
+  <div class="dashboard">
+    <div class="dashboard__head">
+      <h1 class="dashboard__titulo">Dashboard</h1>
+      <p class="dashboard__subtitulo">Bem-vindo de volta!</p>
     </div>
-
-    <div class="dash__stats">
-      <div v-for="stat in stats" :key="stat.label" class="stat-card">
-        <div
-          class="stat-card__icon"
-          :style="{ background: stat.color + '18', color: stat.color }"
-        >
-          <i :class="`ti ${stat.icon}`" aria-hidden="true"></i>
+    
+    <div class="dashboard__estatisticas">
+      <div 
+        v-for="(stat, index) in estatisticas" 
+        :key="index" 
+        :class="['dashboard__card', 'dashboard__card--' + stat.cor]"
+      >
+        <div class="dashboard__card-icon">
+          <i :class="stat.icon"></i>
         </div>
-        <div class="stat-card__info">
-          <span class="stat-card__value">{{
-            stat.value.toLocaleString("pt")
-          }}</span>
-          <span class="stat-card__label">{{ stat.label }}</span>
+        <div class="dashboard__card-content">
+          <p class="dashboard__card-label">{{ stat.label }}</p>
+          <h3 class="dashboard__card-valor">{{ stat.valor }}</h3>
         </div>
       </div>
     </div>
-
-    <div class="dash__grid">
-      <div class="dash-widget">
-        <p class="dash-widget__title">Acesso Rápido</p>
-        <div class="dash-widget__links">
-          <NuxtLink to="/dashboard/cursos" class="quick-link">
-            <i class="ti ti-books"></i> Cursos
+    
+    <div class="dashboard__conteudo">
+      <div class="dashboard__secao">
+        <h2 class="dashboard__secao-titulo">Atividades Recentes</h2>
+        <div class="dashboard__atividades">
+          <div 
+            v-for="(atividade, index) in atividadesRecentes" 
+            :key="index"
+            class="dashboard__atividade"
+          >
+            <div :class="['dashboard__atividade-icon', 'dashboard__atividade-icon--' + atividade.cor]">
+              <i :class="atividade.icon"></i>
+            </div>
+            <div class="dashboard__atividade-content">
+              <p class="dashboard__atividade-texto">{{ atividade.texto }}</p>
+              <span class="dashboard__atividade-horario">{{ atividade.horario }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard__secao">
+        <h2 class="dashboard__secao-titulo">Acesso Rápido</h2>
+        <div class="dashboard__acessos">
+          <NuxtLink to="/dashboard/alunos" class="dashboard__acesso">
+            <div class="dashboard__acesso-icon dashboard__acesso-icon--blue">
+              <i class="ti ti-users"></i>
+            </div>
+            <span class="dashboard__acesso-label">Alunos</span>
           </NuxtLink>
-          <NuxtLink to="/dashboard/disciplinas" class="quick-link">
-            <i class="ti ti-book"></i> Disciplinas
+          <NuxtLink to="/dashboard/disciplinas" class="dashboard__acesso">
+            <div class="dashboard__acesso-icon dashboard__acesso-icon--red">
+              <i class="ti ti-notebook"></i>
+            </div>
+            <span class="dashboard__acesso-label">Disciplinas</span>
           </NuxtLink>
-          <NuxtLink to="/dashboard/professores" class="quick-link">
-            <i class="ti ti-users"></i> Professores
+          <NuxtLink to="/dashboard/turmas" class="dashboard__acesso">
+            <div class="dashboard__acesso-icon dashboard__acesso-icon--green">
+              <i class="ti ti-users-group"></i>
+            </div>
+            <span class="dashboard__acesso-label">Turmas</span>
           </NuxtLink>
-          <NuxtLink to="/dashboard/alunos" class="quick-link">
-            <i class="ti ti-school"></i> Alunos
-          </NuxtLink>
-          <NuxtLink to="/dashboard/turmas" class="quick-link">
-            <i class="ti ti-building"></i> Turmas
-          </NuxtLink>
-          <NuxtLink to="/dashboard/matriculas" class="quick-link">
-            <i class="ti ti-clipboard-list"></i> Matrículas
+          <NuxtLink to="/dashboard/notas" class="dashboard__acesso">
+            <div class="dashboard__acesso-icon dashboard__acesso-icon--purple">
+              <i class="ti ti-clipboard-check"></i>
+            </div>
+            <span class="dashboard__acesso-label">Notas</span>
           </NuxtLink>
         </div>
       </div>
@@ -66,121 +135,212 @@ const stats = [
 </template>
 
 <style lang="sass">
-$red: #dc2626
-$red-dark: #b91c1c
+@use '~/assets/sass/variables' as *
 
-.dash
-    display: flex
-    flex-direction: column
-    gap: 2rem
+.dashboard
+  display: flex
+  flex-direction: column
+  gap: $spacing-2xl
 
-    &__head
-        display: flex
-        align-items: flex-start
-        justify-content: space-between
+  &__head
+    margin-bottom: $spacing-md
 
-    &__title
-        font-size: 2rem
-        font-weight: 800
-        color: #0f172a
-        margin: 0 0 0.5rem
+  &__titulo
+    font-size: 2rem
+    font-weight: 800
+    color: $gray-900
+    margin: 0 0 $spacing-xs
 
-    &__subtitle
-        font-size: 1.125rem
-        color: #64748b
-        margin: 0
+  &__subtitulo
+    font-size: 1.125rem
+    color: $gray-500
+    margin: 0
 
-    &__stats
-        display: grid
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))
-        gap: 1.25rem
+  &__estatisticas
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
+    gap: $spacing-xl
 
-    &__grid
-        display: grid
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr))
-        gap: 1.5rem
-
-.stat-card
-    background: #fff
-    border-radius: 16px
-    padding: 1.5rem
+  &__card
+    background: $white
+    border-radius: $radius-lg
+    border: 1px solid $gray-200
+    box-shadow: $shadow-sm
+    padding: $spacing-xl
     display: flex
     align-items: center
-    gap: 1rem
-    border: 1px solid #e2e8f0
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)
+    gap: $spacing-lg
     transition: transform 0.2s, box-shadow 0.2s
 
     &:hover
-        transform: translateY(-2px)
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)
+      transform: translateY(-4px)
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1)
 
-    &__icon
-        width: 56px
-        height: 56px
-        border-radius: 14px
-        display: flex
-        align-items: center
-        justify-content: center
-        flex-shrink: 0
+    &--blue
+      .dashboard__card-icon
+        background: rgba(59, 130, 246, 0.1)
+        color: $blue
 
-        i
-            font-size: 26px
+    &--purple
+      .dashboard__card-icon
+        background: rgba(139, 92, 246, 0.1)
+        color: $purple
 
-    &__info
-        display: flex
-        flex-direction: column
-        gap: 4px
+    &--green
+      .dashboard__card-icon
+        background: rgba(16, 185, 129, 0.1)
+        color: $green
 
-    &__value
-        font-size: 2rem
-        font-weight: 800
-        color: #0f172a
-        line-height: 1
+    &--red
+      .dashboard__card-icon
+        background: rgba(220, 38, 38, 0.1)
+        color: $red
 
-    &__label
-        font-size: 0.9375rem
-        color: #64748b
-        font-weight: 500
-
-.dash-widget
-    background: #fff
-    border-radius: 16px
-    padding: 1.75rem
-    border: 1px solid #e2e8f0
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)
-
-    &__title
-        font-size: 0.875rem
-        font-weight: 700
-        color: #64748b
-        text-transform: uppercase
-        letter-spacing: 0.08em
-        margin: 0 0 1.25rem
-
-    &__links
-        display: flex
-        flex-wrap: wrap
-        gap: 0.75rem
-
-.quick-link
-    display: inline-flex
+  &__card-icon
+    width: 56px
+    height: 56px
+    border-radius: $radius-md
+    display: flex
     align-items: center
-    gap: 0.625rem
-    padding: 0.75rem 1rem
-    background: #f8fafc
-    border-radius: 10px
-    font-size: 0.9375rem
-    font-weight: 600
-    color: #1e293b
-    text-decoration: none
-    transition: background 0.15s, color 0.15s, transform 0.15s
+    justify-content: center
 
     i
-        font-size: 18px
+      font-size: 2rem
+
+  &__card-label
+    font-size: 0.875rem
+    color: $gray-500
+    margin: 0 0 $spacing-xs
+
+  &__card-valor
+    font-size: 2rem
+    font-weight: 800
+    color: $gray-900
+    margin: 0
+
+  &__conteudo
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: $spacing-xl
+
+    @media (max-width: 768px)
+      grid-template-columns: 1fr
+
+  &__secao
+    background: $white
+    border-radius: $radius-lg
+    border: 1px solid $gray-200
+    box-shadow: $shadow-sm
+    padding: $spacing-xl
+
+  &__secao-titulo
+    font-size: 1.25rem
+    font-weight: 700
+    color: $gray-900
+    margin: 0 0 $spacing-lg
+
+  &__atividades
+    display: flex
+    flex-direction: column
+    gap: $spacing-md
+
+  &__atividade
+    display: flex
+    align-items: center
+    gap: $spacing-md
+    padding: $spacing-md
+    border-radius: $radius-md
+    transition: background 0.15s
 
     &:hover
-        background: $red
-        color: #fff
-        transform: translateY(-1px)
+      background: $gray-50
+
+  &__atividade-icon
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+
+    i
+      font-size: 1.25rem
+
+    &--green
+      background: rgba(16, 185, 129, 0.1)
+      color: $green
+
+    &--blue
+      background: rgba(59, 130, 246, 0.1)
+      color: $blue
+
+    &--purple
+      background: rgba(139, 92, 246, 0.1)
+      color: $purple
+
+    &--red
+      background: rgba(220, 38, 38, 0.1)
+      color: $red
+
+  &__atividade-content
+    flex: 1
+
+  &__atividade-texto
+    font-size: 0.9375rem
+    color: $gray-800
+    margin: 0 0 $spacing-xs
+
+  &__atividade-horario
+    font-size: 0.8125rem
+    color: $gray-500
+
+  &__acessos
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: $spacing-md
+
+  &__acesso
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: $spacing-md
+    padding: $spacing-xl
+    background: $gray-50
+    border-radius: $radius-md
+    text-decoration: none
+    transition: background 0.15s, transform 0.15s
+
+    &:hover
+      background: #e5e7eb
+      transform: translateY(-2px)
+
+  &__acesso-icon
+    width: 48px
+    height: 48px
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+
+    i
+      font-size: 1.5rem
+      color: $white
+
+    &--blue
+      background: $blue
+
+    &--red
+      background: $red
+
+    &--green
+      background: $green
+
+    &--purple
+      background: $purple
+
+  &__acesso-label
+    font-size: 0.9375rem
+    font-weight: 600
+    color: $gray-700
 </style>

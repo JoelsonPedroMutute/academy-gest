@@ -1,0 +1,417 @@
+@use 'variables' as *
+
+// /* Reset & Base */
+*
+  box-sizing: border-box
+  margin: 0
+  padding: 0
+
+body
+  font-family: $primary-theme-font
+  background-color: $gray-50
+  color: $gray-800
+
+// /* Page Layout (Reusable for all dashboard pages) */
+.page
+  display: flex
+  flex-direction: column
+  gap: $spacing-3xl
+
+  &__head
+    display: flex
+    align-items: flex-start
+    justify-content: space-between
+    gap: $spacing-lg
+
+  &__title
+    font-size: 2rem
+    font-weight: 800
+    color: $gray-900
+    margin: 0 0 $spacing-sm
+
+  &__subtitle
+    font-size: 1.125rem
+    color: $gray-500
+    margin: 0
+
+// /* Card Component */
+.card
+  background: $white
+  border-radius: $radius-lg
+  border: 1px solid $gray-200
+  box-shadow: $shadow-sm
+
+  &--hover
+    transition: transform 0.2s, box-shadow 0.2s
+
+    &:hover
+      transform: translateY(-2px)
+      box-shadow: $shadow-md
+
+// /* Button Component */
+.btn
+  display: inline-flex
+  align-items: center
+  gap: $spacing-md
+  padding: $spacing-lg $spacing-2xl
+  border: none
+  border-radius: $radius-md
+  font-size: 1rem
+  font-weight: 600
+  cursor: pointer
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s
+  font-family: $primary-theme-font
+  text-decoration: none
+
+  i
+    font-size: 1.125rem
+
+  &--primary
+    background: $red
+    color: $white
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2)
+
+    &:hover
+      background: $red-dark
+      transform: translateY(-1px)
+      box-shadow: $shadow-lg
+
+  &--secondary
+    background: $gray-100
+    color: $gray-700
+
+    &:hover
+      background: $gray-200
+      transform: translateY(-1px)
+
+  &--danger
+    background: $red
+    color: $white
+
+    &:hover
+      background: $red-dark
+
+// /* Filters Section */
+.filters
+  display: flex
+  gap: $spacing-lg
+  flex-wrap: wrap
+  background: $white
+  padding: $spacing-2xl
+  border-radius: $radius-lg
+  border: 1px solid $gray-200
+  box-shadow: $shadow-sm
+
+  &__search
+    flex: 1
+    min-width: 200px
+    padding: $spacing-lg $spacing-xl
+    border: 1px solid $gray-200
+    border-radius: $radius-md
+    font-size: 1rem
+    color: $gray-900
+    font-family: $primary-theme-font
+    transition: border-color 0.15s, box-shadow 0.15s
+
+    &:focus
+      outline: none
+      border-color: $red
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1)
+
+    &::placeholder
+      color: $gray-400
+
+  &__select
+    padding: $spacing-lg $spacing-xl
+    border: 1px solid $gray-200
+    border-radius: $radius-md
+    font-size: 1rem
+    color: $gray-900
+    background: $white
+    cursor: pointer
+    font-family: $primary-theme-font
+    transition: border-color 0.15s, box-shadow 0.15s
+    min-width: 180px
+
+    &:focus
+      outline: none
+      border-color: $red
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1)
+
+// /* Table Component */
+.table-container
+  background: $white
+  border-radius: $radius-lg
+  border: 1px solid $gray-200
+  box-shadow: $shadow-sm
+  overflow: hidden
+
+.table
+  width: 100%
+  border-collapse: collapse
+
+  thead
+    background: $gray-50
+
+    th
+      padding: $spacing-lg $spacing-2xl
+      text-align: left
+      font-size: 0.875rem
+      font-weight: 700
+      color: $gray-500
+      text-transform: uppercase
+      letter-spacing: 0.05em
+
+  tbody
+    tr
+      transition: background 0.1s
+
+      &:hover
+        background: $gray-50
+
+  td
+    padding: $spacing-xl $spacing-2xl
+    font-size: 0.9375rem
+    color: $gray-800
+    border-top: 1px solid $gray-200
+
+// /* Cell with Avatar/Icon */
+.cell-name
+  display: flex
+  align-items: center
+  gap: $spacing-lg
+
+  &__avatar
+    width: 48px
+    height: 48px
+    border-radius: 50%
+    background: $red
+    color: $white
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 1rem
+    font-weight: 800
+
+  &__icon
+    width: 48px
+    height: 48px
+    border-radius: $radius-md
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+
+    i
+      font-size: 24px
+
+    &--purple
+      background: rgba(139, 92, 246, 0.1)
+      color: $purple
+
+    &--blue
+      background: rgba(59, 130, 246, 0.1)
+      color: $blue
+
+    &--orange
+      background: rgba(245, 158, 11, 0.1)
+      color: $orange
+
+// /* Status Tag */
+.status-tag
+  display: inline-flex
+  align-items: center
+  gap: $spacing-xs
+  padding: $spacing-xs $spacing-md
+  border-radius: $radius-full
+  font-size: 0.875rem
+  font-weight: 600
+
+  &::before
+    content: ""
+    width: 6px
+    height: 6px
+    border-radius: 50%
+
+  &--active, &--ativa, &--aprovado
+    background: rgba(16, 185, 129, 0.1)
+    color: $green
+
+    &::before
+      background: $green
+
+  &--inactive, &--inativa, &--reprovado
+    background: rgba(220, 38, 38, 0.1)
+    color: $red
+
+    &::before
+      background: $red
+
+  &--recuperacao
+    background: rgba(245, 158, 11, 0.1)
+    color: $orange
+
+    &::before
+      background: $orange
+
+  &--semester
+    background: rgba(59, 130, 246, 0.1)
+    color: $blue
+
+    &::before
+      background: $blue
+
+// /* Action Buttons */
+.actions
+  display: flex
+  gap: $spacing-sm
+  justify-content: flex-end
+
+  &__header
+    text-align: right
+
+.action-btn
+  padding: $spacing-sm $spacing-md
+  border: none
+  border-radius: $radius-sm
+  font-size: 0.875rem
+  font-weight: 600
+  cursor: pointer
+  transition: background 0.15s, transform 0.1s
+  background: transparent
+  font-family: $primary-theme-font
+
+  &--view
+    color: $blue
+
+    &:hover
+      background: rgba(59, 130, 246, 0.1)
+      transform: translateY(-1px)
+
+  &--edit
+    color: $green
+
+    &:hover
+      background: rgba(16, 185, 129, 0.1)
+      transform: translateY(-1px)
+
+  &--delete
+    color: $red
+
+    &:hover
+      background: rgba(220, 38, 38, 0.1)
+      transform: translateY(-1px)
+
+// /* Form Page Styles */
+.form-page
+  display: flex
+  flex-direction: column
+  gap: $spacing-xl
+
+  &__header
+    display: flex
+    align-items: center
+    gap: $spacing-lg
+
+  &__back
+    display: flex
+    align-items: center
+    gap: $spacing-sm
+    color: $gray-600
+    text-decoration: none
+    font-weight: 600
+    transition: color 0.15s
+
+    &:hover
+      color: $red
+
+  &__title
+    font-size: 1.75rem
+    font-weight: 800
+    color: $gray-900
+    margin: 0
+
+  &__card
+    background: $white
+    border: 1px solid $gray-200
+    border-radius: $radius-lg
+    box-shadow: $shadow-sm
+    padding: $spacing-2xl
+
+// /* Form Styles */
+.form
+  display: flex
+  flex-direction: column
+  gap: $spacing-xl
+
+  &__row
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: $spacing-lg
+
+    @media (max-width: 640px)
+      grid-template-columns: 1fr
+
+  &__group
+    display: flex
+    flex-direction: column
+    gap: $spacing-sm
+
+  &__label
+    font-size: 0.9375rem
+    font-weight: 600
+    color: $gray-800
+
+  &__input,
+  &__select
+    padding: $spacing-lg
+    border: 1px solid $gray-200
+    border-radius: $radius-md
+    font-size: 1rem
+    color: $gray-900
+    font-family: $primary-theme-font
+    transition: border-color 0.15s, box-shadow 0.15s
+
+    &:focus
+      outline: none
+      border-color: $red
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1)
+
+    &::placeholder
+      color: $gray-400
+
+  &__actions
+    display: flex
+    justify-content: flex-end
+    gap: $spacing-md
+    padding-top: $spacing-lg
+    border-top: 1px solid $gray-200
+
+  &__button
+    padding: $spacing-lg $spacing-xl
+    border-radius: $radius-md
+    font-size: 1rem
+    font-weight: 700
+    cursor: pointer
+    transition: all 0.15s
+    text-decoration: none
+    display: inline-flex
+    align-items: center
+
+    &--primary
+      background: $red
+      color: $white
+      border: none
+
+      &:hover
+        background: $red-dark
+        transform: translateY(-1px)
+        box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3)
+
+    &--secondary
+      background: $gray-100
+      color: $gray-700
+      border: none
+
+      &:hover
+        background: $gray-200
