@@ -6,15 +6,29 @@ definePageMeta({
 const { $swal } = useNuxtApp()
 const router = useRouter()
 
+const { data: cursos } = await useAsyncData('cursos', () => useIFetch('admin/courses'))
+
+
 const form = ref({
-  nome: '',
-  cargaHoraria: '',
-  status: 'Ativo'
+  name: '',
+  description: '',
+  course_id: null,
+  hourly_load: null
 })
 
-const handleSubmit = () => {
-  $swal.toast.fire({ icon: 'success', title: 'Disciplina criada com sucesso!' })
-  router.push('/dashboard/disciplinas')
+const handleSubmit = async () => {
+
+  try {
+    await useIFetch('admin/subjects', {
+      method: 'POST',
+      body: form.value
+    })
+
+    $swal.toast.fire({ icon: 'success', title: 'Disciplina criada com sucesso!' })
+    router.push('/dashboard/disciplinas')
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao criar disciplina' })
+  }
 }
 </script>
 
@@ -30,15 +44,30 @@ const handleSubmit = () => {
 
     <div class="form-page__card">
       <form @submit.prevent="handleSubmit" class="form">
+        <div class="form__group">
+          <label for="name" class="form__label">Nome da Disciplina</label>
+          <input id="name" v-model="form.name" type="text" class="form__input" placeholder="Digite o nome da disciplina" required />
+        </div>
+
         <div class="form__row">
           <div class="form__group">
-            <label for="nome" class="form__label">Nome da Disciplina</label>
-            <input id="nome" v-model="form.nome" type="text" class="form__input" placeholder="Digite o nome da disciplina" required />
+            <label for="course_id" class="form__label">Curso</label>
+            <select id="course_id" v-model="form.course_id" class="form__select" required>
+              <option :value="null">Selecione um curso</option>
+              <option v-for="curso in cursos?.data" :key="curso.id" :value="curso.id">
+                {{ curso.name }}
+              </option>
+            </select>
           </div>
           <div class="form__group">
-            <label for="cargaHoraria" class="form__label">Carga Horária</label>
-            <input id="cargaHoraria" v-model="form.cargaHoraria" type="text" class="form__input" placeholder="Ex: 60h" required />
+            <label for="hourly_load" class="form__label">Carga Horária</label>
+            <input id="hourly_load" v-model.number="form.hourly_load" type="number" min="1" class="form__input" placeholder="Ex: 60" />
           </div>
+        </div>
+
+        <div class="form__group">
+          <label for="description" class="form__label">Descrição</label>
+          <textarea id="description" v-model="form.description" class="form__input" placeholder="Digite a descrição" rows="3" />
         </div>
 
         <div class="form__actions">
@@ -53,3 +82,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
+<style lang="sass">
+// Estilos globais já estão no style.sass
+</style>

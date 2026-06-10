@@ -4,24 +4,26 @@ definePageMeta({
 })
 
 const { $swal } = useNuxtApp()
+const { user } = useAuth()
 
-const perfil = ref({
-  nome: 'Administrador',
-  email: 'admin@academia.edu',
-  telefone: '(11) 98765-4321',
-  cargo: 'Gestor Acadêmico',
-  dataCadastro: '01/01/2024'
-})
-
-const editForm = ref({ ...perfil.value })
-
-const getInitials = (nome) => {
-  return nome.split(' ').map(n => n[0]).slice(0, 1).join('').toUpperCase()
+const getInitials = (name) => {
+  if (!name) return 'U'
+  return name.split(' ').map(n => n[0]).slice(0, 1).join('').toUpperCase()
 }
 
-const saveEdit = () => {
-  perfil.value = { ...editForm.value }
-  $swal.toast.fire({ icon: 'success', title: 'Perfil atualizado com sucesso!' })
+const saveEdit = async () => {
+  try {
+    await useIFetch('/auth/profile', {
+      method: 'PUT',
+      body: {
+        name: user.value.name,
+        email: user.value.email,
+      }
+    })
+    $swal.toast.fire({ icon: 'success', title: 'Perfil atualizado com sucesso!' })
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao atualizar perfil!' })
+  }
 }
 </script>
 
@@ -35,11 +37,11 @@ const saveEdit = () => {
     <div class="perfil-card">
       <div class="perfil-card__header">
         <div class="perfil-card__avatar">
-          {{ getInitials(perfil.nome) }}
+          {{ getInitials(user?.name) }}
         </div>
         <div class="perfil-card__info">
-          <h2 class="perfil-card__name">{{ perfil.nome }}</h2>
-          <p class="perfil-card__role">{{ perfil.cargo }}</p>
+          <h2 class="perfil-card__name">{{ user?.name || 'Usuário' }}</h2>
+          <p class="perfil-card__role">{{ user?.role || 'Usuário' }}</p>
         </div>
       </div>
 
@@ -47,28 +49,12 @@ const saveEdit = () => {
         <div class="perfil-form__row">
           <div class="perfil-form__group">
             <label class="perfil-form__label">Nome completo</label>
-            <input v-model="editForm.nome" type="text" class="perfil-form__input" required />
+            <input v-model="user.name" type="text" class="perfil-form__input" required />
           </div>
           <div class="perfil-form__group">
             <label class="perfil-form__label">Email</label>
-            <input v-model="editForm.email" type="email" class="perfil-form__input" required />
+            <input v-model="user.email" type="email" class="perfil-form__input" required />
           </div>
-        </div>
-
-        <div class="perfil-form__row">
-          <div class="perfil-form__group">
-            <label class="perfil-form__label">Telefone</label>
-            <input v-model="editForm.telefone" type="text" class="perfil-form__input" required />
-          </div>
-          <div class="perfil-form__group">
-            <label class="perfil-form__label">Cargo</label>
-            <input v-model="editForm.cargo" type="text" class="perfil-form__input perfil-form__input--disabled" disabled />
-          </div>
-        </div>
-
-        <div class="perfil-form__group perfil-form__group--full">
-          <label class="perfil-form__label">Data de cadastro</label>
-          <input v-model="editForm.dataCadastro" type="text" class="perfil-form__input perfil-form__input--disabled" disabled />
         </div>
 
         <div class="perfil-form__actions">
@@ -156,9 +142,6 @@ const saveEdit = () => {
     flex-direction: column
     gap: $spacing-sm
 
-    &--full
-      grid-column: 1 / -1
-
   &__label
     font-size: 0.875rem
     font-weight: 600
@@ -178,11 +161,6 @@ const saveEdit = () => {
       outline: none
       border-color: $red
       background: $white
-
-    &--disabled
-      background: $gray-100
-      color: $gray-500
-      cursor: not-allowed
 
   &__actions
     display: flex

@@ -7,15 +7,23 @@ const { $swal } = useNuxtApp()
 const router = useRouter()
 
 const form = ref({
-  nome: '',
-  coordenador: '',
-  duracao: '',
-  status: 'Ativo'
+  name: '',
+  duration: null,
+  description: ''
 })
 
-const handleSubmit = () => {
-  $swal.toast.fire({ icon: 'success', title: 'Curso criado com sucesso!' })
-  router.push('/dashboard/cursos')
+const handleSubmit = async () => {
+  try {
+    await useIFetch('admin/courses', {
+      method: 'POST',
+      body: form.value
+    })
+
+    $swal.toast.fire({ icon: 'success', title: 'Curso criado com sucesso!' })
+    router.push('/dashboard/cursos')
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao criar curso' })
+  }
 }
 </script>
 
@@ -32,19 +40,20 @@ const handleSubmit = () => {
     <div class="form-page__card">
       <form @submit.prevent="handleSubmit" class="form">
         <div class="form__group">
-          <label for="nome" class="form__label">Nome do Curso</label>
-          <input id="nome" v-model="form.nome" type="text" class="form__input" placeholder="Digite o nome do curso" required />
+          <label for="name" class="form__label">Nome do Curso</label>
+          <input id="name" v-model="form.name" type="text" class="form__input" placeholder="Digite o nome do curso" required />
         </div>
 
         <div class="form__row">
           <div class="form__group">
-            <label for="coordenador" class="form__label">Coordenador</label>
-            <input id="coordenador" v-model="form.coordenador" type="text" class="form__input" placeholder="Digite o nome do coordenador" required />
+            <label for="duration" class="form__label">Duração (anos)</label>
+            <input id="duration" v-model.number="form.duration" type="number" min="1" max="10" class="form__input" placeholder="Ex: 4" />
           </div>
-          <div class="form__group">
-            <label for="duracao" class="form__label">Duração</label>
-            <input id="duracao" v-model="form.duracao" type="text" class="form__input" placeholder="Ex: 4 anos" required />
-          </div>
+        </div>
+
+        <div class="form__group">
+          <label for="description" class="form__label">Descrição</label>
+          <textarea id="description" v-model="form.description" class="form__input" placeholder="Digite a descrição" rows="3" />
         </div>
 
         <div class="form__actions">
@@ -59,3 +68,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
+<style lang="sass">
+// Estilos globais já estão no style.sass
+</style>

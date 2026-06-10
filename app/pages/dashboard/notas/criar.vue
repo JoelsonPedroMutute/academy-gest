@@ -7,17 +7,26 @@ const { $swal } = useNuxtApp()
 const router = useRouter()
 
 const form = ref({
-  aluno: '',
-  disciplina: '',
-  turma: '',
-  nota1: '',
-  nota2: '',
-  status: 'Aprovado'
+  student_id: null,
+  subject_id: null,
+  class_id: null,
+  trimester_exam: null,
+  semester_exam: null,
+  final_exam: null
 })
 
-const handleSubmit = () => {
-  $swal.toast.fire({ icon: 'success', title: 'Nota criada com sucesso!' })
-  router.push('/dashboard/notas')
+const handleSubmit = async () => {
+  try {
+    await useIFetch('admin/grades', {
+      method: 'POST',
+      body: form.value
+    })
+
+    $swal.toast.fire({ icon: 'success', title: 'Nota criada com sucesso!' })
+    router.push('/dashboard/notas')
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao criar nota' })
+  }
 }
 </script>
 
@@ -35,34 +44,17 @@ const handleSubmit = () => {
       <form @submit.prevent="handleSubmit" class="form">
         <div class="form__row">
           <div class="form__group">
-            <label for="aluno" class="form__label">Aluno</label>
-            <input id="aluno" v-model="form.aluno" type="text" class="form__input" required />
+            <label for="trimester_exam" class="form__label">Nota Trimestre</label>
+            <input id="trimester_exam" v-model.number="form.trimester_exam" type="number" step="0.1" class="form__input" placeholder="Ex: 7.5" />
           </div>
           <div class="form__group">
-            <label for="disciplina" class="form__label">Disciplina</label>
-            <input id="disciplina" v-model="form.disciplina" type="text" class="form__input" required />
+            <label for="semester_exam" class="form__label">Nota Semestre</label>
+            <input id="semester_exam" v-model.number="form.semester_exam" type="number" step="0.1" class="form__input" placeholder="Ex: 8.0" />
           </div>
         </div>
-
         <div class="form__group">
-          <label for="turma" class="form__label">Turma</label>
-          <select id="turma" v-model="form.turma" class="form__select" required>
-            <option value="">Selecione uma turma</option>
-            <option>Turma A</option>
-            <option>Turma B</option>
-            <option>Turma C</option>
-          </select>
-        </div>
-
-        <div class="form__row">
-          <div class="form__group">
-            <label for="nota1" class="form__label">Nota 1</label>
-            <input id="nota1" v-model="form.nota1" type="number" step="0.1" class="form__input" required />
-          </div>
-          <div class="form__group">
-            <label for="nota2" class="form__label">Nota 2</label>
-            <input id="nota2" v-model="form.nota2" type="number" step="0.1" class="form__input" required />
-          </div>
+          <label for="final_exam" class="form__label">Nota Final</label>
+          <input id="final_exam" v-model.number="form.final_exam" type="number" step="0.1" class="form__input" placeholder="Ex: 8.5" />
         </div>
 
         <div class="form__actions">
@@ -77,3 +69,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
+<style lang="sass">
+// Estilos globais já estão no style.sass
+</style>

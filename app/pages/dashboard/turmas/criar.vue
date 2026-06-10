@@ -7,16 +7,26 @@ const { $swal } = useNuxtApp()
 const router = useRouter()
 
 const form = ref({
-  nome: '',
-  curso: '',
-  semestre: '',
-  professor: '',
-  status: 'Ativo'
+  name: '',
+  course_id: null,
+  academic_year: null,
+  semester: null,
+  capacity: null,
+  shift: ''
 })
 
-const handleSubmit = () => {
-  $swal.toast.fire({ icon: 'success', title: 'Turma criada com sucesso!' })
-  router.push('/dashboard/turmas')
+const handleSubmit = async () => {
+  try {
+    await useIFetch('admin/classes', {
+      method: 'POST',
+      body: form.value
+    })
+
+    $swal.toast.fire({ icon: 'success', title: 'Turma criada com sucesso!' })
+    router.push('/dashboard/turmas')
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao criar turma' })
+  }
 }
 </script>
 
@@ -33,35 +43,39 @@ const handleSubmit = () => {
     <div class="form-page__card">
       <form @submit.prevent="handleSubmit" class="form">
         <div class="form__group">
-          <label for="nome" class="form__label">Nome da Turma</label>
-          <input id="nome" v-model="form.nome" type="text" class="form__input" placeholder="Digite o nome da turma" required />
+          <label for="name" class="form__label">Nome da Turma</label>
+          <input id="name" v-model="form.name" type="text" class="form__input" placeholder="Digite o nome da turma" required />
         </div>
 
         <div class="form__row">
           <div class="form__group">
-            <label for="curso" class="form__label">Curso</label>
-            <select id="curso" v-model="form.curso" class="form__select" required>
-              <option value="">Selecione um curso</option>
-              <option>Jornalismo</option>
-              <option>Comunicação Social</option>
-              <option>Técnico de Informática</option>
-            </select>
+            <label for="academic_year" class="form__label">Ano Letivo</label>
+            <input id="academic_year" v-model.number="form.academic_year" type="number" min="2000" max="2100" class="form__input" placeholder="Ex: 2024" />
           </div>
           <div class="form__group">
-            <label for="semestre" class="form__label">Semestre</label>
-            <select id="semestre" v-model="form.semestre" class="form__select" required>
-              <option value="">Selecione um semestre</option>
-              <option>1º Semestre</option>
-              <option>2º Semestre</option>
-              <option>3º Semestre</option>
-              <option>4º Semestre</option>
+            <label for="semester" class="form__label">Semestre</label>
+            <select id="semester" v-model.number="form.semester" class="form__select">
+              <option :value="null">Selecione um semestre</option>
+              <option :value="1">1º Semestre</option>
+              <option :value="2">2º Semestre</option>
             </select>
           </div>
         </div>
 
-        <div class="form__group">
-          <label for="professor" class="form__label">Professor</label>
-          <input id="professor" v-model="form.professor" type="text" class="form__input" placeholder="Digite o nome do professor" required />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="capacity" class="form__label">Capacidade</label>
+            <input id="capacity" v-model.number="form.capacity" type="number" min="1" class="form__input" placeholder="Capacidade máxima" />
+          </div>
+          <div class="form__group">
+            <label for="shift" class="form__label">Turno</label>
+            <select id="shift" v-model="form.shift" class="form__select">
+              <option value="">Selecione um turno</option>
+              <option value="morning">Manhã</option>
+              <option value="afternoon">Tarde</option>
+              <option value="night">Noite</option>
+            </select>
+          </div>
         </div>
 
         <div class="form__actions">
@@ -76,3 +90,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
+<style lang="sass">
+// Estilos globais já estão no style.sass
+</style>

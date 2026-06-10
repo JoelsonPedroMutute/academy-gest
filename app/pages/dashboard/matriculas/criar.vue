@@ -7,15 +7,29 @@ const { $swal } = useNuxtApp()
 const router = useRouter()
 
 const form = ref({
-  aluno: '',
-  turma: '',
-  curso: '',
-  status: 'Ativa'
+  student_id: null,
+  course_id: null,
+  school_class_id: null,
+  academic_year: '',
+  semester: null,
+  capacity: null,
+  shift: '',
+  status: 'active',
+  enrollment_date: null
 })
 
-const handleSubmit = () => {
-  $swal.toast.fire({ icon: 'success', title: 'Matrícula criada com sucesso!' })
-  router.push('/dashboard/matriculas')
+const handleSubmit = async () => {
+  try {
+    await useIFetch('admin/enrollments', {
+      method: 'POST',
+      body: form.value
+    })
+
+    $swal.toast.fire({ icon: 'success', title: 'Matrícula criada com sucesso!' })
+    router.push('/dashboard/matriculas')
+  } catch (error) {
+    $swal.toast.fire({ icon: 'error', title: 'Erro ao criar matrícula' })
+  }
 }
 </script>
 
@@ -31,28 +45,29 @@ const handleSubmit = () => {
 
     <div class="form-page__card">
       <form @submit.prevent="handleSubmit" class="form">
-        <div class="form__group">
-          <label for="aluno" class="form__label">Aluno</label>
-          <input id="aluno" v-model="form.aluno" type="text" class="form__input" placeholder="Digite o nome do aluno" required />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="academic_year" class="form__label">Ano Letivo</label>
+            <input id="academic_year" v-model="form.academic_year" type="text" class="form__input" placeholder="Ano letivo" />
+          </div>
+          <div class="form__group">
+            <label for="semester" class="form__label">Semestre</label>
+            <input id="semester" v-model.number="form.semester" type="number" min="1" max="2" class="form__input" placeholder="Semestre" />
+          </div>
         </div>
 
         <div class="form__row">
           <div class="form__group">
-            <label for="turma" class="form__label">Turma</label>
-            <select id="turma" v-model="form.turma" class="form__select" required>
-              <option value="">Selecione uma turma</option>
-              <option>Turma A</option>
-              <option>Turma B</option>
-              <option>Turma C</option>
-            </select>
+            <label for="enrollment_date" class="form__label">Data da Matrícula</label>
+            <input id="enrollment_date" v-model="form.enrollment_date" type="date" class="form__input" placeholder="Data de matrícula" />
           </div>
           <div class="form__group">
-            <label for="curso" class="form__label">Curso</label>
-            <select id="curso" v-model="form.curso" class="form__select" required>
-              <option value="">Selecione um curso</option>
-              <option>Jornalismo</option>
-              <option>Comunicação Social</option>
-              <option>Técnico de Informática</option>
+            <label for="status" class="form__label">Status</label>
+            <select id="status" v-model="form.status" class="form__select">
+              <option value="active">Ativa</option>
+              <option value="suspended">Suspensa</option>
+              <option value="cancelled">Cancelada</option>
+              <option value="completed">Concluída</option>
             </select>
           </div>
         </div>
@@ -69,3 +84,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
+<style lang="sass">
+// Estilos globais já estão no style.sass
+</style>

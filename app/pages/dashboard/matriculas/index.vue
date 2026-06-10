@@ -1,55 +1,79 @@
 <script setup>
 definePageMeta({
   layout: "default",
-})
+});
 
-const { $swal } = useNuxtApp()
+const { $swal } = useNuxtApp();
+const { data: matriculas, refresh } = await useAsyncData("matriculas", () =>
+  useIFetch("admin/enrollments")
+);
 
-const matriculas = ref([
-  { id: 1, aluno: "Ana Souza", turma: "Turma A", curso: "Jornalismo", dataMatricula: "2024-01-15", status: "Ativa" },
-  { id: 2, aluno: "Pedro Costa", turma: "Turma B", curso: "Comunicação Social", dataMatricula: "2024-01-10", status: "Ativa" },
-  { id: 3, aluno: "Lucia Oliveira", turma: "Turma C", curso: "Técnico de Informática", dataMatricula: "2024-01-20", status: "Ativa" },
-])
-
-const isModalOpen = ref(false)
-const editingMatricula = ref(null)
+const isModalOpen = ref(false);
+const editingMatricula = ref(null);
 
 const openEditModal = (matricula) => {
-  editingMatricula.value = { ...matricula }
-  isModalOpen.value = true
-}
+  editingMatricula.value = { ...matricula };
+  isModalOpen.value = true;
+};
 
 const closeModal = () => {
-  isModalOpen.value = false
-  editingMatricula.value = null
-}
+  isModalOpen.value = false;
+  editingMatricula.value = null;
+};
 
-const handleUpdateMatricula = () => {
-  const index = matriculas.value.findIndex(m => m.id === editingMatricula.value.id)
-  if (index !== -1) {
-    matriculas.value[index] = { ...editingMatricula.value }
+const handleUpdateMatricula = async () => {
+  try {
+    await useIFetch(`admin/enrollments/${editingMatricula.value.id}`, {
+      method: "PUT",
+      body: {
+        student_id: editingMatricula.value.student_id,
+        school_class_id: editingMatricula.value.school_class_id,
+        academic_year: editingMatricula.value.academic_year,
+        semester: editingMatricula.value.semester,
+        enrollment_date: editingMatricula.value.enrollment_date,
+        status: editingMatricula.value.status,
+      },
+    });
+
+    await refresh();
+    $swal.toast.fire({
+      icon: "success",
+      title: "Matrícula atualizada com sucesso!",
+    });
+    closeModal();
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao atualizar matrícula" });
   }
-  $swal.toast.fire({ icon: 'success', title: 'Matrícula atualizada com sucesso!' })
-  closeModal()
-}
+};
 
 const handleDeleteMatricula = async (matricula) => {
-  const { isConfirmed } = await $swal.modal.fire({
-    title: 'Tem certeza?',
-    text: `Você está prestes a excluir a matrícula de "${matricula.aluno}". Esta ação não pode ser desfeita!`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Sim, excluir!',
-    cancelButtonText: 'Cancelar'
-  })
-  
-  if (isConfirmed) {
-    matriculas.value = matriculas.value.filter(m => m.id !== matricula.id)
-    $swal.toast.fire({ icon: 'success', title: 'Matrícula excluída com sucesso!' })
+  try {
+    const { isConfirmed } = await $swal.modal.fire({
+      title: "Tem certeza?",
+      text: `Você está prestes a excluir esta matrícula. Esta ação não pode ser desfeita!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sim, excluir!",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (isConfirmed) {
+      await useIFetch(`admin/enrollments/${matricula.id}`, {
+        method: "DELETE",
+      });
+
+      await refresh();
+      $swal.toast.fire({
+        icon: "success",
+        title: "Matrícula eliminada com sucesso!",
+      });
+    }
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao eliminar matrícula" });
   }
-}
+};
 </script>
 
 <template>
@@ -57,7 +81,9 @@ const handleDeleteMatricula = async (matricula) => {
     <div class="page__head">
       <div>
         <h1 class="page__title">Gestão de Matrículas</h1>
-        <p class="page__subtitle">Gerencie todas as matrículas da instituição</p>
+        <p class="page__subtitle">
+          Gerencie todas as matrículas da instituição
+        </p>
       </div>
       <NuxtLink to="/dashboard/matriculas/criar" class="btn btn--primary">
         <i class="ti ti-plus"></i>
@@ -66,7 +92,11 @@ const handleDeleteMatricula = async (matricula) => {
     </div>
 
     <div class="filters">
-      <input type="text" class="filters__search" placeholder="Buscar matrícula por aluno..." />
+      <input
+        type="text"
+        class="filters__search"
+        placeholder="Buscar matrícula por aluno..."
+      />
       <select class="filters__select">
         <option>Todas as Turmas</option>
         <option>Turma A</option>
@@ -90,34 +120,49 @@ const handleDeleteMatricula = async (matricula) => {
       <table class="table">
         <thead>
           <tr>
-            <th>Aluno</th>
-            <th>Turma</th>
-            <th>Curso</th>
+            <th>Ano Letivo</th>
+            <th>Semestre</th>
             <th>Data da Matrícula</th>
             <th>Status</th>
             <th class="actions__header">Ações</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="matricula in matriculas" :key="matricula.id">
+          <tr v-for="matricula in matriculas?.data || []" :key="matricula.id">
+            <td>{{ matricula.academic_year || "-" }}</td>
             <td>
-              <div class="cell-name">
-                <div class="cell-name__icon cell-name__icon--blue">
-                  <i class="ti ti-user-plus"></i>
-                </div>
-                <span>{{ matricula.aluno }}</span>
-              </div>
+              {{ matricula.semester ? `${matricula.semester}º Semestre` : "-" }}
             </td>
-            <td>{{ matricula.turma }}</td>
-            <td>{{ matricula.curso }}</td>
-            <td>{{ matricula.dataMatricula }}</td>
+            <td>{{ matricula.enrollment_date || "-" }}</td>
             <td>
-              <span class="status-tag status-tag--ativa">{{ matricula.status }}</span>
+              <span
+                :class="[
+                  'status-tag',
+                  matricula.status === 'active' ? 'status-tag--ativa' : '',
+                ]"
+              >
+                {{
+                  matricula.status
+                    ? matricula.status.charAt(0).toUpperCase() +
+                      matricula.status.slice(1)
+                    : "-"
+                }}
+              </span>
             </td>
             <td>
               <div class="actions">
-                <button class="action-btn action-btn--edit" @click="openEditModal(matricula)">Editar</button>
-                <button class="btn btn--danger" @click="handleDeleteMatricula(matricula)">Excluir</button>
+                <button
+                  class="action-btn action-btn--edit"
+                  @click="openEditModal(matricula)"
+                >
+                  Editar
+                </button>
+                <button
+                  class="btn btn--primary btn--danger"
+                  @click="handleDeleteMatricula(matricula)"
+                >
+                  Excluir
+                </button>
               </div>
             </td>
           </tr>
@@ -125,47 +170,95 @@ const handleDeleteMatricula = async (matricula) => {
       </table>
     </div>
 
-    <Modal :is-open="isModalOpen" :title="`Editar Matrícula: ${editingMatricula?.aluno || ''}`" @close="closeModal">
-      <form v-if="editingMatricula" @submit.prevent="handleUpdateMatricula" class="form">
-        <div class="form__group">
-          <label for="edit-aluno" class="form__label">Aluno</label>
-          <input id="edit-aluno" v-model="editingMatricula.aluno" type="text" class="form__input" placeholder="Digite o nome do aluno" required />
+    <Modal
+      v-if="editingMatricula"
+      :is-open="isModalOpen"
+      :title="'Editar Matrícula: ' + (editingMatricula.id || '')"
+      @close="closeModal"
+    >
+      <form @submit.prevent="handleUpdateMatricula" class="form">
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit-academic_year" class="form__label"
+              >Ano Letivo</label
+            >
+            <input
+              id="edit-academic_year"
+              v-model="editingMatricula.academic_year"
+              type="text"
+              class="form__input"
+              placeholder="Ano letivo"
+            />
+          </div>
+          <div class="form__group">
+            <label for="edit-semester" class="form__label">Semestre</label>
+            <input
+              id="edit-semester"
+              v-model.number="editingMatricula.semester"
+              type="number"
+              min="1"
+              max="2"
+              class="form__input"
+              placeholder="Semestre"
+            />
+          </div>
         </div>
 
         <div class="form__row">
           <div class="form__group">
-            <label for="edit-turma" class="form__label">Turma</label>
-            <select id="edit-turma" v-model="editingMatricula.turma" class="form__select" required>
-              <option value="">Selecione uma turma</option>
-              <option>Turma A</option>
-              <option>Turma B</option>
-              <option>Turma C</option>
-            </select>
+            <label for="edit-enrollment_date" class="form__label"
+              >Data da Matrícula</label
+            >
+            <input
+              id="edit-enrollment_date"
+              v-model="editingMatricula.enrollment_date"
+              type="date"
+              class="form__input"
+              placeholder="Data de matrícula"
+            />
           </div>
           <div class="form__group">
-            <label for="edit-curso" class="form__label">Curso</label>
-            <select id="edit-curso" v-model="editingMatricula.curso" class="form__select" required>
-              <option value="">Selecione um curso</option>
-              <option>Jornalismo</option>
-              <option>Comunicação Social</option>
-              <option>Técnico de Informática</option>
+            <label for="edit-status" class="form__label">Status</label>
+            <select
+              id="edit-status"
+              v-model="editingMatricula.status"
+              class="form__select"
+            >
+              <option value="">Selecione o status</option>
+              <option value="active">Ativa</option>
+              <option value="suspended">Suspensa</option>
+              <option value="cancelled">Cancelada</option>
+              <option value="completed">Concluída</option>
             </select>
           </div>
-        </div>
-
-        <div class="form__group">
-          <label for="edit-status" class="form__label">Status</label>
-          <select id="edit-status" v-model="editingMatricula.status" class="form__select" required>
-            <option>Ativo</option>
-            <option>Inativo</option>
-          </select>
         </div>
 
         <div class="form__actions">
-          <button type="button" @click="closeModal" class="form__button form__button--secondary">Cancelar</button>
-          <button type="submit" class="form__button form__button--primary">Salvar Alterações</button>
+          <button
+            type="button"
+            @click="closeModal"
+            class="form__button form__button--secondary"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="form__button form__button--primary">
+            Salvar Alterações
+          </button>
         </div>
       </form>
     </Modal>
   </div>
 </template>
+
+<style lang="sass">
+@use '~/assets/sass/variables' as *
+
+.btn--danger
+  background: $red
+  color: $white
+  padding: $spacing-sm $spacing-md
+  font-size: 0.875rem
+
+  &:hover
+    background: $red-dark
+</style>

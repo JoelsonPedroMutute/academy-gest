@@ -1,57 +1,79 @@
 <script setup>
 definePageMeta({
   layout: "default",
-})
+});
 
-const { $swal } = useNuxtApp()
+const { $swal } = useNuxtApp();
+const { data: notas, refresh } = await useAsyncData("notas", () =>
+  useIFetch("admin/grades")
+);
 
-const notas = ref([
-  { id: 1, aluno: "Ana Souza", disciplina: "OPP", turma: "Turma A", nota1: 8.5, nota2: 7.5, media: 8.0, status: "Aprovado" },
-  { id: 2, aluno: "Pedro Costa", disciplina: "Oratória", turma: "Turma B", nota1: 6.0, nota2: 5.5, media: 5.75, status: "Recuperação" },
-  { id: 3, aluno: "Lucia Oliveira", disciplina: "Matemática", turma: "Turma C", nota1: 9.0, nota2: 9.5, media: 9.25, status: "Aprovado" },
-])
-
-const isModalOpen = ref(false)
-const editingNota = ref(null)
+const isModalOpen = ref(false);
+const editingNota = ref(null);
 
 const openEditModal = (nota) => {
-  editingNota.value = { ...nota }
-  isModalOpen.value = true
-}
+  editingNota.value = { ...nota };
+  isModalOpen.value = true;
+};
 
 const closeModal = () => {
-  isModalOpen.value = false
-  editingNota.value = null
-}
+  isModalOpen.value = false;
+  editingNota.value = null;
+};
 
-const handleUpdateNota = () => {
-  const index = notas.value.findIndex(n => n.id === editingNota.value.id)
-  if (index !== -1) {
-    const media = (Number(editingNota.value.nota1) + Number(editingNota.value.nota2)) / 2
-    const status = media >= 7 ? 'Aprovado' : media >= 5 ? 'Recuperação' : 'Reprovado'
-    notas.value[index] = { ...editingNota.value, media, status }
+const handleUpdateNota = async () => {
+  try {
+    await useIFetch(`admin/grades/${editingNota.value.id}`, {
+      method: "PUT",
+      body: {
+        student_id: editingNota.value.student_id,
+        subject_id: editingNota.value.subject_id,
+        class_id: editingNota.value.class_id,
+        trimester_exam: editingNota.value.evaluations?.trimester_exam,
+        semester_exam: editingNota.value.evaluations?.semester_exam,
+        final_exam: editingNota.value.evaluations?.final_exam,
+      },
+    });
+
+    await refresh();
+    $swal.toast.fire({
+      icon: "success",
+      title: "Nota atualizada com sucesso!",
+    });
+    closeModal();
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao atualizar nota" });
   }
-  $swal.toast.fire({ icon: 'success', title: 'Nota atualizada com sucesso!' })
-  closeModal()
-}
+};
 
 const handleDeleteNota = async (nota) => {
-  const { isConfirmed } = await $swal.modal.fire({
-    title: 'Tem certeza?',
-    text: `Você está prestes a excluir a nota de "${nota.aluno}". Esta ação não pode ser desfeita!`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Sim, excluir!',
-    cancelButtonText: 'Cancelar'
-  })
-  
-  if (isConfirmed) {
-    notas.value = notas.value.filter(n => n.id !== nota.id)
-    $swal.toast.fire({ icon: 'success', title: 'Nota excluída com sucesso!' })
+  try {
+    const { isConfirmed } = await $swal.modal.fire({
+      title: "Tem certeza?",
+      text: `Você está prestes a excluir esta nota. Esta ação não pode ser desfeita!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sim, excluir!",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (isConfirmed) {
+      await useIFetch(`admin/grades/${nota.id}`, {
+        method: "DELETE",
+      });
+
+      await refresh();
+      $swal.toast.fire({
+        icon: "success",
+        title: "Nota eliminada com sucesso!",
+      });
+    }
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao eliminar nota" });
   }
-}
+};
 </script>
 
 <template>
@@ -68,7 +90,11 @@ const handleDeleteNota = async (nota) => {
     </div>
 
     <div class="filters">
-      <input type="text" class="filters__search" placeholder="Buscar nota por aluno..." />
+      <input
+        type="text"
+        class="filters__search"
+        placeholder="Buscar nota por aluno..."
+      />
       <select class="filters__select">
         <option>Todas as Disciplinas</option>
         <option>OPP</option>
@@ -93,40 +119,74 @@ const handleDeleteNota = async (nota) => {
       <table class="table">
         <thead>
           <tr>
-            <th>Aluno</th>
-            <th>Disciplina</th>
-            <th>Turma</th>
             <th>Nota 1</th>
             <th>Nota 2</th>
-            <th>Média</th>
+            <th>Nota Final</th>
+            <th>Média Final</th>
             <th>Status</th>
             <th class="actions__header">Ações</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="nota in notas" :key="nota.id">
+          <tr v-for="nota in notas?.data || []" :key="nota.id">
             <td>
-              <div class="cell-name">
-                <div class="cell-name__icon cell-name__icon--purple">
-                  <i class="ti ti-clipboard-check"></i>
-                </div>
-                <span>{{ nota.aluno }}</span>
-              </div>
+              {{
+                nota.evaluations?.trimester_exam
+                  ? nota.evaluations.trimester_exam.toFixed(1)
+                  : "-"
+              }}
             </td>
-            <td>{{ nota.disciplina }}</td>
-            <td>{{ nota.turma }}</td>
-            <td>{{ nota.nota1.toFixed(1) }}</td>
-            <td>{{ nota.nota2.toFixed(1) }}</td>
-            <td><strong>{{ nota.media.toFixed(1) }}</strong></td>
             <td>
-              <span :class="['status-tag', nota.status === 'Aprovado' ? 'status-tag--ativa' : nota.status === 'Recuperação' ? 'status-tag--semester' : 'status-tag--inativa']">
-                {{ nota.status }}
+              {{
+                nota.evaluations?.semester_exam
+                  ? nota.evaluations.semester_exam.toFixed(1)
+                  : "-"
+              }}
+            </td>
+            <td>
+              {{
+                nota.evaluations?.final_exam
+                  ? nota.evaluations.final_exam.toFixed(1)
+                  : "-"
+              }}
+            </td>
+            <td>
+              <strong>{{
+                nota.final_average ? nota.final_average.toFixed(1) : "-"
+              }}</strong>
+            </td>
+            <td>
+              <span
+                :class="[
+                  'status-tag',
+                  nota.status === 'approved'
+                    ? 'status-tag--ativa'
+                    : nota.status === 'recovery'
+                    ? 'status-tag--semester'
+                    : 'status-tag--inativa',
+                ]"
+              >
+                {{
+                  nota.status
+                    ? nota.status.charAt(0).toUpperCase() + nota.status.slice(1)
+                    : "-"
+                }}
               </span>
             </td>
             <td>
               <div class="actions">
-                <button class="action-btn action-btn--edit" @click="openEditModal(nota)">Editar</button>
-                <button class="btn btn--danger" @click="handleDeleteNota(nota)">Excluir</button>
+                <button
+                  class="action-btn action-btn--edit"
+                  @click="openEditModal(nota)"
+                >
+                  Editar
+                </button>
+                <button
+                  class="btn btn--primary btn--danger"
+                  @click="handleDeleteNota(nota)"
+                >
+                  Excluir
+                </button>
               </div>
             </td>
           </tr>
@@ -134,45 +194,79 @@ const handleDeleteNota = async (nota) => {
       </table>
     </div>
 
-    <Modal :is-open="isModalOpen" :title="`Editar Nota: ${editingNota?.aluno || ''}`" @close="closeModal">
-      <form v-if="editingNota" @submit.prevent="handleUpdateNota" class="form">
+    <Modal
+      v-if="editingNota"
+      :is-open="isModalOpen"
+      :title="'Editar Nota: ' + (editingNota.id || '')"
+      @close="closeModal"
+    >
+      <form @submit.prevent="handleUpdateNota" class="form">
         <div class="form__row">
           <div class="form__group">
-            <label for="edit-aluno" class="form__label">Aluno</label>
-            <input id="edit-aluno" v-model="editingNota.aluno" type="text" class="form__input" placeholder="Digite o nome do aluno" required />
+            <label for="edit-trimester_exam" class="form__label"
+              >Nota Trimestre</label
+            >
+            <input
+              id="edit-trimester_exam"
+              v-model.number="editingNota.evaluations.trimester_exam"
+              type="number"
+              step="0.1"
+              class="form__input"
+              placeholder="Ex: 7.5"
+            />
           </div>
           <div class="form__group">
-            <label for="edit-disciplina" class="form__label">Disciplina</label>
-            <input id="edit-disciplina" v-model="editingNota.disciplina" type="text" class="form__input" placeholder="Digite a disciplina" required />
+            <label for="edit-semester_exam" class="form__label"
+              >Nota Semestre</label
+            >
+            <input
+              id="edit-semester_exam"
+              v-model.number="editingNota.evaluations.semester_exam"
+              type="number"
+              step="0.1"
+              class="form__input"
+              placeholder="Ex: 8.0"
+            />
           </div>
         </div>
-
         <div class="form__group">
-          <label for="edit-turma" class="form__label">Turma</label>
-          <select id="edit-turma" v-model="editingNota.turma" class="form__select" required>
-            <option value="">Selecione uma turma</option>
-            <option>Turma A</option>
-            <option>Turma B</option>
-            <option>Turma C</option>
-          </select>
-        </div>
-
-        <div class="form__row">
-          <div class="form__group">
-            <label for="edit-nota1" class="form__label">Nota 1</label>
-            <input id="edit-nota1" v-model.number="editingNota.nota1" type="number" step="0.1" class="form__input" placeholder="Ex: 7.5" required />
-          </div>
-          <div class="form__group">
-            <label for="edit-nota2" class="form__label">Nota 2</label>
-            <input id="edit-nota2" v-model.number="editingNota.nota2" type="number" step="0.1" class="form__input" placeholder="Ex: 8.0" required />
-          </div>
+          <label for="edit-final_exam" class="form__label">Nota Final</label>
+          <input
+            id="edit-final_exam"
+            v-model.number="editingNota.evaluations.final_exam"
+            type="number"
+            step="0.1"
+            class="form__input"
+            placeholder="Ex: 8.5"
+          />
         </div>
 
         <div class="form__actions">
-          <button type="button" @click="closeModal" class="form__button form__button--secondary">Cancelar</button>
-          <button type="submit" class="form__button form__button--primary">Salvar Alterações</button>
+          <button
+            type="button"
+            @click="closeModal"
+            class="form__button form__button--secondary"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="form__button form__button--primary">
+            Salvar Alterações
+          </button>
         </div>
       </form>
     </Modal>
   </div>
 </template>
+
+<style lang="sass">
+@use '~/assets/sass/variables' as *
+
+.btn--danger
+  background: $red
+  color: $white
+  padding: $spacing-sm $spacing-md
+  font-size: 0.875rem
+
+  &:hover
+    background: $red-dark
+</style>

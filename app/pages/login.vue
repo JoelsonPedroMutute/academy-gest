@@ -6,7 +6,7 @@ definePageMeta({
 const { login } = useAuth();
 const router = useRouter();
 
-const credencial = ref("");
+const email = ref("");
 const senha = ref("");
 const mostrarSenha = ref(false);
 const carregando = ref(false);
@@ -17,7 +17,7 @@ const entrar = async () => {
   carregando.value = true;
 
   try {
-    const sucesso = await login(credencial.value.trim(), senha.value);
+    const sucesso = await login(email.value.trim(), senha.value);
     if (sucesso) {
       await router.push("/dashboard");
     } else {
@@ -39,15 +39,15 @@ const entrar = async () => {
 
     <form class="login-card__form" @submit.prevent="entrar">
       <div class="form-group">
-        <label for="credencial" class="form-label">Usuário, Email ou BI</label>
+        <label for="email" class="form-label">E-mail</label>
         <div class="form-input-wrapper">
           <input
-            id="credencial"
-            v-model="credencial"
-            type="text"
+            id="email"
+            v-model="email"
+            type="email"
             class="form-input"
-            placeholder="Digite nome do usuário, email ou BI"
-            autocomplete="username"
+            placeholder="Digite o seu e-mail"
+            autocomplete="email"
             :disabled="carregando"
             required
           />

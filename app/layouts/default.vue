@@ -1,12 +1,9 @@
 
 <script setup>
 const { logout, user } = useAuth();
-const router = useRouter();
-const route = useRoute();
 
 const sairDaSessao = async () => {
   await logout();
-  await router.push("/login");
 };
 
 const navItems = [
@@ -25,14 +22,16 @@ const navItems = [
   { label: "Perfil", icon: "ti-user-circle", to: "/dashboard/perfil" },
 ];
 
+const route = useRoute();
+
 const isActive = (to) => {
   if (to === "/dashboard") return route.path === "/dashboard";
   return route.path.startsWith(to);
 };
 
 const iniciaisNome = computed(() => {
-  if (!user.value?.nome) return "U";
-  return user.value.nome
+  if (!user.value?.name) return "U";
+  return user.value.name
     .split(" ")
     .slice(0, 2)
     .map((n) => n[0])
@@ -96,7 +95,7 @@ const iniciaisNome = computed(() => {
             <div class="topbar__avatar">{{ iniciaisNome }}</div>
             <div class="topbar__user-info">
               <span class="topbar__user-name">
-                {{ user?.nome ?? "Utilizador" }} —
+                {{ user?.name ?? "Utilizador" }} —
                 <strong>{{ user?.role ?? "ADMIN" }}</strong>
               </span>
               <span class="topbar__user-role">Gestão Académica</span>

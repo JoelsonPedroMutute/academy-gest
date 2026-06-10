@@ -4,56 +4,34 @@ definePageMeta({
 });
 
 const { $swal } = useNuxtApp();
+const { estaAutenticado } = useAuth();
+const { data: alunos, refresh } = await useAsyncData("alunos", () =>
+  useIFetch("admin/students")
+);
 
-const alunos = ref([
-  {
-    id: 1,
-    nome: "Ana Souza",
-    email: "ana.souza@academia.edu",
-    telefone: "(11) 98765-4321",
-    curso: "Jornalismo",
-    semestre: "3º Semestre",
-    status: "Ativo",
-  },
-  {
-    id: 2,
-    nome: "Pedro Costa",
-    email: "pedro.costa@academia.edu",
-    telefone: "(11) 91234-5678",
-    curso: "Comunicação Social",
-    semestre: "2º Semestre",
-    status: "Ativo",
-  },
-  {
-    id: 3,
-    nome: "Lucia Oliveira",
-    email: "lucia.oliveira@academia.edu",
-    telefone: "(11) 99876-5432",
-    curso: "Técnico de Informática",
-    semestre: "1º Semestre",
-    status: "Ativo",
-  },
-]);
+watch(estaAutenticado, (autenticado) => {
+  if (autenticado) {
+    refresh();
+  }
+});
 
 const isModalOpen = ref(false);
 const editingAluno = ref(null);
 
-const modalTitle = computed(() => {
-  if (!editingAluno.value) return "";
-  return `Editar Aluno: ${editingAluno.value.nome}`;
-});
-
-const getInitials = (nome) => {
-  return nome
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+const getInitials = (name) => {
+  return name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 };
 
 const openEditModal = (aluno) => {
-  editingAluno.value = { ...aluno };
+  editingAluno.value = {
+    ...aluno,
+    name: aluno.user.name,
+    email: aluno.user.email,
+    phone: aluno.user.phone,
+    address: aluno.user.address,
+    bi: aluno.user.bi,
+    gender: aluno.user.gender,
+  };
   isModalOpen.value = true;
 };
 
@@ -62,30 +40,53 @@ const closeModal = () => {
   editingAluno.value = null;
 };
 
-const handleUpdateAluno = () => {
-  const index = alunos.value.findIndex((a) => a.id === editingAluno.value.id);
-  if (index !== -1) {
-    alunos.value[index] = { ...editingAluno.value };
+const handleUpdateAluno = async () => {
+  try {
+    await useIFetch(`admin/students/${editingAluno.value.id}`, {
+      method: "PUT",
+      body: {
+        name: editingAluno.value.name,
+        email: editingAluno.value.email,
+        phone: editingAluno.value.phone,
+        address: editingAluno.value.address,
+        bi: editingAluno.value.bi,
+        gender: editingAluno.value.gender,
+        birth_date: editingAluno.value.birth_date,
+        student_number: editingAluno.value.student_number,
+      },
+    });
+
+    await refresh();
+    $swal.toast.fire({ icon: "success", title: "Aluno atualizado com sucesso!" });
+    closeModal();
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao atualizar aluno" });
   }
-  $swal.toast.fire({ icon: "success", title: "Aluno atualizado com sucesso!" });
-  closeModal();
 };
 
 const handleDeleteAluno = async (aluno) => {
-  const { isConfirmed } = await $swal.modal.fire({
-    title: "Tem certeza?",
-    text: `Você está prestes a excluir o aluno "${aluno.nome}". Esta ação não pode ser desfeita!`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#dc2626",
-    cancelButtonColor: "#6b7280",
-    confirmButtonText: "Sim, excluir!",
-    cancelButtonText: "Cancelar",
-  });
+  try {
+    const { isConfirmed } = await $swal.modal.fire({
+      title: "Tem certeza?",
+      text: `Você está prestes a excluir o aluno "${aluno.user.name}". Esta ação não pode ser desfeita!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sim, excluir!",
+      cancelButtonText: "Cancelar",
+    });
 
-  if (isConfirmed) {
-    alunos.value = alunos.value.filter((a) => a.id !== aluno.id);
-    $swal.toast.fire({ icon: "success", title: "Aluno excluído com sucesso!" });
+    if (isConfirmed) {
+      await useIFetch(`admin/students/${aluno.id}`, {
+        method: "DELETE",
+      });
+
+      await refresh();
+      $swal.toast.fire({ icon: "success", title: "Aluno eliminado com sucesso!" });
+    }
+  } catch (error) {
+    $swal.toast.fire({ icon: "error", title: "Erro ao eliminar aluno" });
   }
 };
 </script>
@@ -104,11 +105,7 @@ const handleDeleteAluno = async (aluno) => {
     </div>
 
     <div class="filters">
-      <input
-        type="text"
-        class="filters__search"
-        placeholder="Buscar aluno por nome..."
-      />
+      <input type="text" class="filters__search" placeholder="Buscar aluno por nome..." />
       <select class="filters__select">
         <option>Todos os Cursos</option>
         <option>Jornalismo</option>
@@ -136,43 +133,31 @@ const handleDeleteAluno = async (aluno) => {
             <th>Aluno</th>
             <th>Email</th>
             <th>Telefone</th>
-            <th>Curso</th>
-            <th>Semestre</th>
+            <th>Data de Nascimento</th>
             <th>Status</th>
             <th class="actions__header">Ações</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="aluno in alunos" :key="aluno.id">
+          <tr v-for="aluno in alunos?.data || []" :key="aluno.id">
             <td>
               <div class="cell-name">
-                <div class="cell-name__avatar">
-                  {{ getInitials(aluno.nome) }}
-                </div>
-                <span>{{ aluno.nome }}</span>
+                <div class="cell-name__avatar">{{ getInitials(aluno.user.name) }}</div>
+                <span>{{ aluno.user.name }}</span>
               </div>
             </td>
-            <td>{{ aluno.email }}</td>
-            <td>{{ aluno.telefone }}</td>
-            <td>{{ aluno.curso }}</td>
-            <td>{{ aluno.semestre }}</td>
+            <td>{{ aluno.user.email }}</td>
+            <td>{{ aluno.user.phone || "-" }}</td>
+            <td>{{ aluno.birth_date }}</td>
             <td>
-              <span class="status-tag status-tag--ativa">{{
-                aluno.status
-              }}</span>
+              <span class="status-tag status-tag--ativa">Ativo</span>
             </td>
             <td>
               <div class="actions">
-                <button
-                  class="action-btn action-btn--edit"
-                  @click="openEditModal(aluno)"
-                >
+                <button class="action-btn action-btn--edit" @click="openEditModal(aluno)">
                   Editar
                 </button>
-                <button
-                  class="btn btn--primary btn--danger"
-                  @click="handleDeleteAluno(aluno)"
-                >
+                <button class="btn btn--primary btn--danger" @click="handleDeleteAluno(aluno)">
                   Excluir
                 </button>
               </div>
@@ -185,15 +170,15 @@ const handleDeleteAluno = async (aluno) => {
     <Modal
       v-if="editingAluno"
       :is-open="isModalOpen"
-      :title="modalTitle"
+      :title="'Editar Aluno: ' + editingAluno.name"
       @close="closeModal"
     >
       <form @submit.prevent="handleUpdateAluno" class="form">
         <div class="form__group">
-          <label for="edit-nome" class="form__label">Nome completo</label>
+          <label for="edit-name" class="form__label">Nome completo</label>
           <input
-            id="edit-nome"
-            v-model="editingAluno.nome"
+            id="edit-name"
+            v-model="editingAluno.name"
             type="text"
             class="form__input"
             placeholder="Digite o nome completo"
@@ -214,69 +199,74 @@ const handleDeleteAluno = async (aluno) => {
             />
           </div>
           <div class="form__group">
-            <label for="edit-telefone" class="form__label">Telefone</label>
+            <label for="edit-phone" class="form__label">Telefone</label>
             <input
-              id="edit-telefone"
-              v-model="editingAluno.telefone"
+              id="edit-phone"
+              v-model="editingAluno.phone"
               type="text"
               class="form__input"
-              placeholder="(00) 00000-0000"
-              required
+              placeholder="Digite o telefone"
             />
           </div>
         </div>
 
         <div class="form__row">
           <div class="form__group">
-            <label for="edit-curso" class="form__label">Curso</label>
-            <select
-              id="edit-curso"
-              v-model="editingAluno.curso"
-              class="form__select"
-              required
-            >
-              <option value="">Selecione um curso</option>
-              <option>Jornalismo</option>
-              <option>Comunicação Social</option>
-              <option>Técnico de Informática</option>
-            </select>
+            <label for="edit-birth_date" class="form__label">Data de Nascimento</label>
+            <input
+              id="edit-birth_date"
+              v-model="editingAluno.birth_date"
+              type="date"
+              class="form__input"
+              placeholder="Selecione a data de nascimento"
+            />
           </div>
           <div class="form__group">
-            <label for="edit-semestre" class="form__label">Semestre</label>
-            <select
-              id="edit-semestre"
-              v-model="editingAluno.semestre"
-              class="form__select"
-              required
-            >
-              <option value="">Selecione um semestre</option>
-              <option>1º Semestre</option>
-              <option>2º Semestre</option>
-              <option>3º Semestre</option>
-              <option>4º Semestre</option>
-            </select>
+            <label for="edit-student_number" class="form__label">Número de Aluno</label>
+            <input
+              id="edit-student_number"
+              v-model="editingAluno.student_number"
+              type="text"
+              class="form__input"
+              placeholder="Número de aluno"
+            />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit-address" class="form__label">Endereço</label>
+            <input
+              id="edit-address"
+              v-model="editingAluno.address"
+              type="text"
+              class="form__input"
+              placeholder="Endereço"
+            />
+          </div>
+          <div class="form__group">
+            <label for="edit-bi" class="form__label">BI</label>
+            <input
+              id="edit-bi"
+              v-model="editingAluno.bi"
+              type="text"
+              class="form__input"
+              placeholder="Número de BI"
+            />
           </div>
         </div>
 
         <div class="form__group">
-          <label for="edit-status" class="form__label">Status</label>
-          <select
-            id="edit-status"
-            v-model="editingAluno.status"
-            class="form__select"
-            required
-          >
-            <option>Ativo</option>
-            <option>Inativo</option>
+          <label for="edit-gender" class="form__label">Gênero</label>
+          <select id="edit-gender" v-model="editingAluno.gender" class="form__select">
+            <option value="">Selecione o gênero</option>
+            <option value="male">Masculino</option>
+            <option value="female">Feminino</option>
           </select>
         </div>
 
         <div class="form__actions">
-          <button
-            type="button"
-            @click="closeModal"
-            class="form__button form__button--secondary"
-          >
+          <button type="button" @click="closeModal" class="form__button form__button--secondary">
             Cancelar
           </button>
           <button type="submit" class="form__button form__button--primary">
